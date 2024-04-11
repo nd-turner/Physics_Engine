@@ -5,6 +5,9 @@
 #include <demoShader.h>
 #include <iostream>
 
+#include "Callbacks.h"
+
+void render();
 
 #define USE_GPU_ENGINE 0
 extern "C"
@@ -21,8 +24,15 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
+//render code here this will be called with a parameter of a shape to render that we will implement with time
+void render() {
+
+
+}
+
 int main(void)
 {
+	glfwSetErrorCallback(glfw_Error_Callback);
 	// if glfw does not initalize then exit main
 	if (!glfwInit()) {
 		return -1;
@@ -37,7 +47,7 @@ int main(void)
 
 
 	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //you might want to do this when testing the game for shipping
 
 
@@ -92,6 +102,7 @@ int main(void)
 		glEnd();
 
 		glfwSwapBuffers(window); //presents current image to the screen for the frame
+		//printf("1st frame \n");
 		glfwPollEvents();
 
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -102,7 +113,10 @@ int main(void)
 			glVertex2f(1, 0);
 		glEnd();
 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window); //I think this presents the frame
+
+		
+		//printf("2nd frame \n");
 	}
 
 	//there is no need to call the clear function for the libraries since the os will do that for us.
