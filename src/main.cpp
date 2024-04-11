@@ -22,11 +22,9 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
 int main(void)
 {
-	//if glfw fails to init then throw error
-	if (!glfwInit()) {
+
+	if (!glfwInit())
 		return -1;
-	}
-		
 
 
 #pragma region report opengl errors to std
@@ -72,13 +70,15 @@ int main(void)
 
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
-
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glBegin(GL_TRIANGLES);
-		glVertex2f(0, .5);
-		glVertex2f(-.3, 0);
-		glVertex2f(.3, 0);
+		glColor3f(1, 0, 0);
+		glVertex2f(0,1);
+		glColor3f(0, 1, 0);
+		glVertex2f(1,-1);
+		glColor3f(0, 0, 1);
+		glVertex2f(-1,-1);
 		glEnd();
 
 		glfwSwapBuffers(window);
