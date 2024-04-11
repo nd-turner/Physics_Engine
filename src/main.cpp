@@ -13,7 +13,7 @@
 
 void render();
 
-static timer timeCounter;
+static timer tickMaster;
 #define USE_GPU_ENGINE 0
 
 extern "C"
@@ -28,22 +28,13 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+
 }
 
 //render code here this will be called with a parameter of a shape to render that we will implement with time
 void render() {
 
 	
-	
-	
-	timeCounter.tick();
-	int ticker = timeCounter.getTicks();
-	
-	
-	
-
-	std::cout << (ticker) << "   ";
-
 }
 
 int main(void)
@@ -112,6 +103,14 @@ int main(void)
 		glViewport(0, 0, width, height);	//starts in lower left corner and goes to upper right corner
 
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		tickMaster.tick();
+		int ticker = tickMaster.getTicks();
+		//so ticker is an integer that counts up at a rate say once every second, I need to run code on every tick
+
+		if (tickMaster.getTickEdge()) {
+			std::cout << "edgeFound" << "\n";
+		}
 		
 		render();
 		//actually render the triangle
