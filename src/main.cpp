@@ -14,6 +14,7 @@ extern "C"
 }
 
 
+//this function closes the window when you press escape
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -22,13 +23,15 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
 int main(void)
 {
-
-	if (!glfwInit())
+	// if glfw does not initalize then exit main
+	if (!glfwInit()) {
 		return -1;
+	}
+		
 
 
 #pragma region report opengl errors to std
-	//enable opengl debugging output.
+	//this code enables GLFW debugging
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #pragma endregion
 
@@ -45,10 +48,16 @@ int main(void)
 		return -1;
 	}
 
+	//link the key_callback function to the current window
 	glfwSetKeyCallback(window, key_callback);
 
+	//specify that window will be taking next glfw commands
 	glfwMakeContextCurrent(window);
+
+	//this initalizes the GLAD library which is integrated with openGL
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+	//enable v-sync (not quite sure what that is)
 	glfwSwapInterval(1);
 
 
@@ -68,21 +77,32 @@ int main(void)
 	{
 		int width = 0, height = 0;
 
+		//gets the size in pixels to allow the rendering to be adaptive to resizing
 		glfwGetFramebufferSize(window, &width, &height);
-		glViewport(0, 0, width, height);
+		//defines the portion of the window where the rendering takes place
+		glViewport(0, 0, width, height);	//starts in lower left corner and goes to upper right corner
+
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//actually render the triangle
+		glBegin(GL_TRIANGLES);
+			glVertex2f(0,.5);
+			glVertex2f(-.5,0);
+			glVertex2f(.5,0);
+		glEnd();
+
+		glfwSwapBuffers(window); //presents current image to the screen for the frame
+		glfwPollEvents();
+
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glBegin(GL_TRIANGLES);
-		glColor3f(1, 0, 0);
-		glVertex2f(0,1);
-		glColor3f(0, 1, 0);
-		glVertex2f(1,-1);
-		glColor3f(0, 0, 1);
-		glVertex2f(-1,-1);
+			glVertex2f(0, 1);
+			glVertex2f(-1, 0);
+			glVertex2f(1, 0);
 		glEnd();
 
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	//there is no need to call the clear function for the libraries since the os will do that for us.
