@@ -6,10 +6,16 @@
 #include <iostream>
 
 #include "Callbacks.h"
+#include "Timer.h"
+
+
+
 
 void render();
 
+static timer timeCounter;
 #define USE_GPU_ENGINE 0
+
 extern "C"
 {
 	__declspec(dllexport) unsigned long NvOptimusEnablement = USE_GPU_ENGINE;
@@ -27,11 +33,22 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 //render code here this will be called with a parameter of a shape to render that we will implement with time
 void render() {
 
+	
+	
+	
+	timeCounter.tick();
+	int ticker = timeCounter.getTicks();
+	
+	
+	
+
+	std::cout << (ticker) << "   ";
 
 }
 
 int main(void)
 {
+
 	glfwSetErrorCallback(glfw_Error_Callback);
 	// if glfw does not initalize then exit main
 	if (!glfwInit()) {
@@ -57,6 +74,7 @@ int main(void)
 		glfwTerminate();
 		return -1;
 	}
+
 
 	//link the key_callback function to the current window
 	glfwSetKeyCallback(window, key_callback);
@@ -85,6 +103,7 @@ int main(void)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		
 		int width = 0, height = 0;
 
 		//gets the size in pixels to allow the rendering to be adaptive to resizing
@@ -93,7 +112,8 @@ int main(void)
 		glViewport(0, 0, width, height);	//starts in lower left corner and goes to upper right corner
 
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		
+		render();
 		//actually render the triangle
 		glBegin(GL_TRIANGLES);
 			glVertex2f(0,.5);
