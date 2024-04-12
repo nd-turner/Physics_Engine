@@ -9,7 +9,7 @@ struct timer {
 
 	double startTime = 0;
 	int ticks = 0;
-	const int tickRate = 10;
+	const int tickRate = 1;
 
 
 	//basically this function just adds some delay on the actual tick, but once that delay has passed there is no more delay.
@@ -17,7 +17,6 @@ struct timer {
 		double currentTime = glfwGetTime();
 		if (currentTime - startTime >= tickRate) { // Check if one second has passed
 			ticks++;
-
 			startTime = currentTime;
 		}
 	}
@@ -28,4 +27,4 @@ struct timer {
 
 	
 };
-#endif // TIMER_H
+#endif 

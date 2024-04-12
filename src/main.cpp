@@ -92,6 +92,11 @@ int main(void)
 	s.loadShaderProgramFromFile(RESOURCES_PATH "vertex.vert", RESOURCES_PATH "fragment.frag");
 	s.bind();
 
+	int startTick = tickMaster.getTicks(); // Assuming tickMaster.getTicks() returns the current tick count
+
+	int loopCount = 0;
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		
@@ -104,15 +109,28 @@ int main(void)
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		
 		tickMaster.tick();
-		int ticker = tickMaster.getTicks();
+		
+		int currentTick = tickMaster.getTicks();
+	
+		//game loop
+		if (currentTick - startTick >= 1) {
+			startTick = currentTick;
+			loopCount++;
+
+			render();
+
+
+		}
+
+		std::cout << loopCount;
+
 		//so ticker is an integer that counts up at a rate say once every second, I need to run code on every tick
 
-		if (tickMaster.getTickEdge()) {
-			std::cout << "edgeFound" << "\n";
-		}
 		
-		render();
+		
+		
 		//actually render the triangle
 		glBegin(GL_TRIANGLES);
 			glVertex2f(0,.5);
