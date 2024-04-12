@@ -13,7 +13,7 @@ This project is a simple 2D physics engine implemented in C++ using OpenGL for r
 - **OpenGL**: Used for rendering the simulated physics in a 2D environment.
 - **GLFW**: A multi-platform library for OpenGL, used for window and context creation.
 - **GLM**: A mathematics library for graphics applications, used for vector and matrix operations.
-- *(Any other dependencies you might have)*
+
 
 ## Getting Started
 
