@@ -39,19 +39,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 //render code here this will be called with a parameter of a shape to render that we will implement with time
 void render(GLFWwindow *window) {
 
-	std::vector<Vertex> mesh;
-	mesh.emplace_back(0,.5,0);
-	mesh.emplace_back(-.5,0,0);
-	mesh.emplace_back(.5,0,0);
-
-	std::vector<int> elem = { 0,1,2 };
-
-	draw Draw(mesh, elem);
-	Draw.uploadMesh(mesh, elem);
 	
-	
-	glfwSwapBuffers(window);
-	glfwPollEvents();
 
 }
 
@@ -97,6 +85,13 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
+	std::vector<Vertex> mesh;
+	mesh.emplace_back(0, .5, 0);
+	mesh.emplace_back(-.5, 0, 0);
+	mesh.emplace_back(.5, 0, 0);
+
+	std::vector<int> elem = { 0,1,2 };
+
 	while (!glfwWindowShouldClose(window))
 	{
 		
@@ -115,7 +110,14 @@ int main(void)
 			std::cout << loopCount;
 
 
-			render(window);
+
+			draw Canvas(mesh, elem);
+			uint32_t vao = Canvas.uploadMesh(mesh, elem);
+			Canvas.drawMesh(vao, elem.size());
+
+
+			glfwSwapBuffers(window);
+			glfwPollEvents();
 
 		}
 	
