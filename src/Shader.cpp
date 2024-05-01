@@ -1,4 +1,6 @@
-#include <demoShader.h>
+#pragma once
+
+#include <shader.h>
 #include <iostream>
 #include <fstream>
 

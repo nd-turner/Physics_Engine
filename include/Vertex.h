@@ -1,7 +1,5 @@
 
-#ifndef VERTEX_H
-#define VERTEX_H
-
+#pragma once
 
 struct Vertex {
 
@@ -17,4 +15,3 @@ struct Vertex {
 
 };
 
-#endif

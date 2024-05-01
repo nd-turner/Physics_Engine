@@ -1,22 +1,28 @@
+
+//This is a project where I will be experimenting with opengl in order
+//to progress in an exploration of developing a physics engine
+
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <openglDebug.h>
-#include <demoShader.h>
+
 #include <iostream>
 #include <vector>
 
+#include <glad/glad.h>
+
+#include "Shader.h"
 #include "Callbacks.h"
+#include "Level.h"
 #include "Timer.h"
 #include "Vertex.h"
-#include "openGLDraw.h"
+#include "Renderer.h"
 
-
-void render(GLFWwindow *window);
-
-
-static timer tickMaster;
 #define USE_GPU_ENGINE 0
+
+
+static Timer tickMaster;
+
 
 extern "C"
 {
@@ -25,23 +31,16 @@ extern "C"
 }
 
 
-//this function closes the window when you press escape
+//here is where we get all of the user input
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
-
-}
-
-
-
-
-//render code here this will be called with a parameter of a shape to render that we will implement with time
-void render(GLFWwindow *window) {
-
 	
 
 }
+
+
 
 int main(void)
 {
@@ -70,12 +69,7 @@ int main(void)
 	glClearColor(.0, .3, .6, 0);	//set window background
 	glfwSwapInterval(1);
 
-#pragma region report opengl errors to std
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(glDebugOutput, 0);
-	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-#pragma endregion
+
 
 	//shader loading example
 	Shader s;
@@ -86,11 +80,16 @@ int main(void)
 	int loopCount = 0;
 
 	std::vector<Vertex> mesh;
-	mesh.emplace_back(0, .5, 0);
-	mesh.emplace_back(-.5, 0, 0);
-	mesh.emplace_back(.5, 0, 0);
 
-	std::vector<int> elem = { 0,1,2 };
+		mesh.emplace_back(-0.5f, 0.5f, 0.0f);
+		mesh.emplace_back(-0.5f, -0.5f, 0.0f);
+		mesh.emplace_back(0.5f, -0.5f, 0.0f);
+		mesh.emplace_back(0.5f, 0.5f, 0.0f); 
+
+	std::vector<int> elem = { 0,1,2,0,2,3 };
+
+	Renderer Renderer;
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -103,24 +102,22 @@ int main(void)
 		tickMaster.tick();	//setup game loop
 		int currentTick = tickMaster.getTicks();
 	
-		
+	
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
 			loopCount++;
-			std::cout << loopCount;
+			
 
-
-
-			draw Canvas(mesh, elem);
-			uint32_t vao = Canvas.uploadMesh(mesh, elem);
-			Canvas.drawMesh(vao, elem.size());
-
-
+			uint32_t vao = Renderer.uploadMesh(mesh, elem);
+			Renderer.drawMesh(vao, elem.size());
+			Renderer.unloadMesh(vao);
+			
 			glfwSwapBuffers(window);
 			glfwPollEvents();
+			
 
 		}
-	
+		
 	}
 	return 0;
 }
