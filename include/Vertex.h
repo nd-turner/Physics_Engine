@@ -13,6 +13,13 @@ struct Vertex {
 		Col[2] = b;
 	}
 
+	Vertex(float x, float y, float z) {
+
+		Pos[0] = x;
+		Pos[1] = y;
+		Pos[2] = z;
+
+	}
 	float Pos[3] = {0, 0, 0};
 	float Col[3] = { 255, 255, 255 };
  };

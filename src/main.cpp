@@ -18,6 +18,7 @@
 #include "Timer.h"
 #include "Vertex.h"
 #include "Renderer.h"
+#include "Geometry.h"
 
 #define USE_GPU_ENGINE 0
 
@@ -70,14 +71,14 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
+	Geometry geo;
+
 	std::vector<Vertex> mesh;
+	float pos[3] = {0,0,0};
+	mesh = geo.generateCircleMesh(.1,  pos, 1000);
 
-		mesh.emplace_back(-0.5f, 0.5f, 0.0f);
-		mesh.emplace_back(-0.5f, -0.5f, 0.0f);
-		mesh.emplace_back(0.5f, -0.5f, 0.0f);
-		mesh.emplace_back(0.5f, 0.5f, 0.0f); 
-
-	std::vector<int> elem = { 0,1,2,0,2,3 };
+	std::vector<int> elem;
+	elem = geo.generateCircleElem(mesh);
 
 	Renderer Renderer;
 
@@ -85,28 +86,28 @@ int main(void)
 
 	//texture
 
-	int Textwidth, Textheight, TextChannels;
-	unsigned char* image_data = stbi_load("wood.png", &Textwidth, &Textheight, &TextChannels, STBI_rgb);
+	//int Textwidth, Textheight, TextChannels;
+	//unsigned char* image_data = stbi_load("wood.png", &Textwidth, &Textheight, &TextChannels, STBI_rgb);
 
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//GLuint texture;
+	//glGenTextures(1, &texture);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, texture);
 
-	//scaling
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	////scaling
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	//repeating
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	////repeating
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Textwidth, Textheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Textwidth, Textheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+	//glGenerateMipmap(GL_TEXTURE_2D);
 
 
-	stbi_image_free(image_data);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//stbi_image_free(image_data);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 
 	while (!glfwWindowShouldClose(window))
@@ -137,5 +138,5 @@ int main(void)
 		}
 		
 	}
-	glDeleteTextures(1, &texture);
+	//glDeleteTextures(1, &texture);
 }
