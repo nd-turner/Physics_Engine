@@ -2,7 +2,7 @@
 
 layout (location = 0) out vec4 color;
 
-//this defines the default color
+
 void main()
 {
 	

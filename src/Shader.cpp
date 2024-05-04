@@ -1,6 +1,6 @@
 #pragma once
 
-#include <shader.h>
+#include <Shader.h>
 #include <iostream>
 #include <fstream>
 
@@ -291,12 +291,7 @@ void Shader::clear()
 	id = 0;
 }
 
-GLint Shader::getUniform(const char *name)
-{
-	return ::getUniform(this->id, name);
-}
-
-GLint getUniform(GLuint shaderId, const char *name)
+GLint Shader::getUniform(GLuint shaderId, const char* name)
 {
 	GLint uniform = glGetUniformLocation(shaderId, name);
 	if (uniform == -1)
@@ -305,3 +300,10 @@ GLint getUniform(GLuint shaderId, const char *name)
 	}
 	return uniform;
 }
+
+GLint Shader::getUniform(const char *name)
+{
+	return getUniform(this->id, name);
+}
+
+

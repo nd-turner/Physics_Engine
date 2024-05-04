@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <stb_image/stb_image.h>
 
 #include <iostream>
 #include <vector>
@@ -31,24 +32,21 @@ extern "C"
 }
 
 
+
+
+
 //here is where we get all of the user input
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	
-
 }
-
-
 
 int main(void)
 {
 	glfwSetErrorCallback(glfw_Error_Callback);
-	// if glfw does not initalize then exit main
-	if (!glfwInit()) {
-		return -1;
-	}
+	if (!glfwInit()) {return -1;}
 		
 #pragma region report opengl errors to std
 	//this code enables GLFW debugging
@@ -57,21 +55,14 @@ int main(void)
 
 
 	GLFWwindow *window = window = glfwCreateWindow(640, 480, "Sim_Window", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		return -1;
-	}
+	if (!window){glfwTerminate();return -1;}
 	
-	glfwSetKeyCallback(window, key_callback);	//link the key_callback function to the current window
+	glfwSetKeyCallback(window, key_callback);
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	glClearColor(.0, .3, .6, 0);	//set window background
+	glClearColor(.0, .3, .6, 0);
 	glfwSwapInterval(1);
 
-
-
-	//shader loading example
 	Shader s;
 	s.loadShaderProgramFromFile(RESOURCES_PATH "vertex.vert", RESOURCES_PATH "fragment.frag");
 	s.bind();
@@ -91,15 +82,42 @@ int main(void)
 	Renderer Renderer;
 
 
+
+	//texture
+
+	int Textwidth, Textheight, TextChannels;
+	unsigned char* image_data = stbi_load("wood.png", &Textwidth, &Textheight, &TextChannels, STBI_rgb);
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	//scaling
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	//repeating
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Textwidth, Textheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+
+	stbi_image_free(image_data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(window, &width, &height);	//defines the portion of the window where the rendering takes place
-		glViewport(0, 0, width, height);	//starts in lower left corner and goes to upper right corner
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		tickMaster.tick();	//setup game loop
+		tickMaster.tick();
 		int currentTick = tickMaster.getTicks();
 	
 	
@@ -119,5 +137,5 @@ int main(void)
 		}
 		
 	}
-	return 0;
+	glDeleteTextures(1, &texture);
 }
