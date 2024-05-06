@@ -22,7 +22,7 @@ std::vector<Vertex> Geometry::generateCircleMesh(float radius, float pos[3], int
         
 
         for (int i = 0; i < resolution; ++i) {
-            float theta = 2.0f * 3.14159f * static_cast<float>(i) / resolution;
+            float theta = 2 * 3.14159f * static_cast<float>(i) / resolution; //build two halves of the circle
             float x = centerX + radius * cos(theta);
             float y = centerY + radius * sin(theta);
             float z = pos[2];

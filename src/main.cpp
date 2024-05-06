@@ -55,7 +55,7 @@ int main(void)
 #pragma endregion
 
 
-	GLFWwindow *window = window = glfwCreateWindow(640, 480, "Sim_Window", NULL, NULL);
+	GLFWwindow *window = window = glfwCreateWindow(640, 640, "Sim_Window", NULL, NULL);
 	if (!window){glfwTerminate();return -1;}
 	
 	glfwSetKeyCallback(window, key_callback);
@@ -70,15 +70,11 @@ int main(void)
 
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
-
+	float CircPos[3] = { 0,0,0 };
 	Geometry geo;
-
-	std::vector<Vertex> mesh;
-	float pos[3] = {0,0,0};
-	mesh = geo.generateCircleMesh(.1,  pos, 1000);
-
-	std::vector<int> elem;
-	elem = geo.generateCircleElem(mesh);
+	
+	float CircSpeed = 0.001;
+	float circle2pos[3] = { 0,0.5,0 };
 
 	Renderer Renderer;
 
@@ -120,12 +116,45 @@ int main(void)
 
 		tickMaster.tick();
 		int currentTick = tickMaster.getTicks();
-	
-	
+		
+		//mesh and elem matrix for the entire screen
+		std::vector<Vertex> mesh;
+		std::vector<int> elem;
+		
+		//generate first circle
+		
+		std::vector<Vertex> mesh1 = geo.generateCircleMesh(.1, CircPos, 10000);
+		std::vector<int> elem1 = geo.generateCircleElem(mesh1);
+
+		//generate second circle
+		
+		std::vector<Vertex> mesh2 = geo.generateCircleMesh(.3, circle2pos, 10000);
+		std::vector<int> elem2 = geo.generateCircleElem(mesh2);
+		
+		// Concatenate vertices and elements from both circles into a single mesh
+		mesh.insert(mesh.end(), mesh1.begin(), mesh1.end());
+		mesh.insert(mesh.end(), mesh2.begin(), mesh2.end());
+
+		// Adjust the indices of the second circle so that they refer to the correct vertices in the combined mesh
+		int offset = mesh1.size();
+		for (size_t i = 0; i < elem2.size(); ++i) {
+			elem2[i] += offset;
+		}
+
+		// Concatenate elements from both circles into a single set of elements
+		elem.insert(elem.end(), elem1.begin(), elem1.end());
+		elem.insert(elem.end(), elem2.begin(), elem2.end());
+
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
 			loopCount++;
-			
+
+			//implement game logic
+
+			CircPos[1] += CircSpeed;	//update x position
+			CircPos[0] += CircSpeed;	//update y position
+	
+			//std::cout << loopCount << "---" << CircPos[1] << "\n";
 
 			uint32_t vao = Renderer.uploadMesh(mesh, elem);
 			Renderer.drawMesh(vao, elem.size());
