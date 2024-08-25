@@ -6,7 +6,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <stb_image/stb_image.h>
+#include <random>
 
+#include <cmath>
 #include <iostream>
 #include <vector>
 
@@ -18,7 +20,7 @@
 #include "Timer.h"
 #include "Vertex.h"
 #include "Renderer.h"
-#include "Geometry.h"
+#include "Object.h"
 
 #define USE_GPU_ENGINE 0
 
@@ -70,11 +72,13 @@ int main(void)
 
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
-	float CircPos[3] = { 0,0,0 };
-	Geometry geo;
+
+	float CircInitPos[3] = { 0,.7,0 };
+	float static CircPos[3] = { 0,.7,0 };
+	Object geo;
 	
-	float CircSpeed = 0.001;
-	float circle2pos[3] = { 0,0.5,0 };
+	float CircSpeed[3] = { -0.01f, 0.01f, 0.0f } ;
+	float circle2pos[3] = { .25,0.5,0 };
 
 	Renderer Renderer;
 
@@ -122,18 +126,16 @@ int main(void)
 		std::vector<int> elem;
 		
 		//generate first circle
-		
 		std::vector<Vertex> mesh1 = geo.generateCircleMesh(.1, CircPos, 10000);
 		std::vector<int> elem1 = geo.generateCircleElem(mesh1);
 
 		//generate second circle
-		
 		std::vector<Vertex> mesh2 = geo.generateCircleMesh(.3, circle2pos, 10000);
 		std::vector<int> elem2 = geo.generateCircleElem(mesh2);
 		
 		// Concatenate vertices and elements from both circles into a single mesh
 		mesh.insert(mesh.end(), mesh1.begin(), mesh1.end());
-		mesh.insert(mesh.end(), mesh2.begin(), mesh2.end());
+		//mesh.insert(mesh.end(), mesh2.begin(), mesh2.end());
 
 		// Adjust the indices of the second circle so that they refer to the correct vertices in the combined mesh
 		int offset = mesh1.size();
@@ -143,17 +145,41 @@ int main(void)
 
 		// Concatenate elements from both circles into a single set of elements
 		elem.insert(elem.end(), elem1.begin(), elem1.end());
-		elem.insert(elem.end(), elem2.begin(), elem2.end());
+		//elem.insert(elem.end(), elem2.begin(), elem2.end());
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
 			loopCount++;
 
 			//implement game logic
+			CircPos[1] += CircSpeed[0];	//update x position
+			CircPos[0] += CircSpeed[1];	//update y position
 
-			CircPos[1] += CircSpeed;	//update x position
-			CircPos[0] += CircSpeed;	//update y position
-	
+			//check to see if the circle is within the confines of the x and y boundaries;
+			if (abs(CircPos[1]) > 1  || abs(CircPos[0]) > 1) {
+
+				
+				//CircSpeed = -CircSpeed * 0.95f;  // Slight reduction to simulate energy loss in a bounce
+
+				
+				if (CircPos[1] > 1.0f) {	
+					CircPos[1] = 1.0f;
+					CircSpeed[0] *= -0.95f;
+				}
+				else if (CircPos[1] < -1.0f) {
+					CircPos[1] = -1.0f;
+					CircSpeed[0] *= -0.95f;
+				}
+				if (CircPos[0] > 1.0f) {
+					CircPos[0] = 1.0f;
+					CircSpeed[1] *= -0.95f;
+				}
+				else if (CircPos[0] < -1.0f) {
+					CircPos[0] = -1.0f;
+					CircSpeed[1] *= -0.95f;
+				}
+				
+			}
 			//std::cout << loopCount << "---" << CircPos[1] << "\n";
 
 			uint32_t vao = Renderer.uploadMesh(mesh, elem);

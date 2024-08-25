@@ -1,25 +1,21 @@
-#include "Geometry.h"
+#include "Object.h"
 #pragma once
 
 #include "Vertex.h" 
 #include <vector>
 
-#include "Geometry.h"
+#include "Object.h"
 
-Geometry::Geometry() {
+Object::Object() {
 
 
 };
 
-std::vector<Vertex> Geometry::generateCircleMesh(float radius, float pos[3], int resolution) {
+std::vector<Vertex> Object::generateCircleMesh(float radius, float pos[3], int resolution) {
 	std::vector<Vertex> GeoMesh;
 
-	
-        
-        const float centerX = pos[0];
-        const float centerY = pos[1];
-
-        
+    const float centerX = pos[0];
+    const float centerY = pos[1];
 
         for (int i = 0; i < resolution; ++i) {
             float theta = 2 * 3.14159f * static_cast<float>(i) / resolution; //build two halves of the circle
@@ -30,16 +26,12 @@ std::vector<Vertex> Geometry::generateCircleMesh(float radius, float pos[3], int
             GeoMesh.emplace_back(x, y, z);
         }
 	
-
 	return GeoMesh;
 }
 
-
-std::vector<int> Geometry::generateCircleElem(std::vector<Vertex> GeoMesh) {
+std::vector<int> Object::generateCircleElem(std::vector<Vertex> GeoMesh) {
 	std::vector<int> GeoElem;
 
-    
-    
         int centerIndex = 0;
 
         for (int i = 1; i < GeoMesh.size() - 1; ++i) {
