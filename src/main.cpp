@@ -78,6 +78,7 @@ int main(void)
 	Object geo;
 	
 	float CircSpeed[3] = { -0.01f, 0.01f, 0.0f } ;
+	float Circ2Speed[3] = { -0.01f, 0.01f, 0.0f };
 	float circle2pos[3] = { .25,0.5,0 };
 
 	Renderer Renderer;
@@ -130,12 +131,12 @@ int main(void)
 		std::vector<int> elem1 = geo.generateCircleElem(mesh1);
 
 		//generate second circle
-		std::vector<Vertex> mesh2 = geo.generateCircleMesh(.3, circle2pos, 10000);
+		std::vector<Vertex> mesh2 = geo.generateCircleMesh(.2, circle2pos, 10000);
 		std::vector<int> elem2 = geo.generateCircleElem(mesh2);
 		
 		// Concatenate vertices and elements from both circles into a single mesh
 		mesh.insert(mesh.end(), mesh1.begin(), mesh1.end());
-		//mesh.insert(mesh.end(), mesh2.begin(), mesh2.end());
+		mesh.insert(mesh.end(), mesh2.begin(), mesh2.end());
 
 		// Adjust the indices of the second circle so that they refer to the correct vertices in the combined mesh
 		int offset = mesh1.size();
@@ -145,7 +146,7 @@ int main(void)
 
 		// Concatenate elements from both circles into a single set of elements
 		elem.insert(elem.end(), elem1.begin(), elem1.end());
-		//elem.insert(elem.end(), elem2.begin(), elem2.end());
+		elem.insert(elem.end(), elem2.begin(), elem2.end());
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
@@ -155,12 +156,12 @@ int main(void)
 			CircPos[1] += CircSpeed[0];	//update x position
 			CircPos[0] += CircSpeed[1];	//update y position
 
+			//implement game logic
+			circle2pos[1] += Circ2Speed[1];	//update x position
+			circle2pos[0] += Circ2Speed[0];	//update y position
+
 			//check to see if the circle is within the confines of the x and y boundaries;
 			if (abs(CircPos[1]) > 1  || abs(CircPos[0]) > 1) {
-
-				
-				//CircSpeed = -CircSpeed * 0.95f;  // Slight reduction to simulate energy loss in a bounce
-
 				
 				if (CircPos[1] > 1.0f) {	
 					CircPos[1] = 1.0f;
@@ -180,6 +181,45 @@ int main(void)
 				}
 				
 			}
+			//check to see if the circle is within the confines of the x and y boundaries;
+			else if (abs(circle2pos[1]) > 1 || abs(circle2pos[0]) > 1) {
+
+				if (circle2pos[1] > 1.0f) {
+					circle2pos[1] = 1.0f;
+					Circ2Speed[1] *= -0.95f;
+				}
+				else if (circle2pos[1] < -1.0f) {
+					circle2pos[1] = -1.0f;
+					Circ2Speed[1] *= -0.95f;
+				}
+				if (circle2pos[0] > 1.0f) {
+					circle2pos[0] = 1.0f;
+					Circ2Speed[0] *= -0.95f;
+				}
+				else if (circle2pos[0] < -1.0f) {
+					circle2pos[0] = -1.0f;
+					Circ2Speed[0] *= -0.95f;
+				}
+
+			}
+			//handle collisions between both circles
+			float dx = circle2pos[0] - CircPos[0];
+			float dy = circle2pos[1] - CircPos[1];
+
+			float distanceSquared = dx * dx + dy * dy;
+
+			float radiusSum = .3;
+
+			float radiusSumSquare = .3 * .3;
+
+			if (distanceSquared < radiusSumSquare) {
+
+				Circ2Speed[0] *= -1.0f;
+				Circ2Speed[1] *= -1.0f;
+				CircSpeed[0] *= -1.0f;
+				CircSpeed[1] *= -1.0f;
+			}
+			
 			//std::cout << loopCount << "---" << CircPos[1] << "\n";
 
 			uint32_t vao = Renderer.uploadMesh(mesh, elem);
