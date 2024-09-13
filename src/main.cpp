@@ -85,7 +85,7 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
-	int numCirc = 1;
+	int numCirc = 5;
 	
 	float InitPos[3] = { 0.0f,0.7f,0.0f };
 	float InitVel[3] = { -0.01f,0.01f,0.0f };
@@ -98,14 +98,15 @@ int main(void)
 
 	//generates 5 randomly initialized circles and stores them in GameObjects vector
 	for (int i = 0; i < numCirc; i++) {
+
 		float InitPos[3] = { 0.0f,0.7f,0.0f };
-		float InitVel[3] = { -0.01f,0.01f,0.0f };
+		float InitVel[3] = { -0.00f,0.0f,0.0f };
 		
-		/*generateRandomFloatArray(InitPos, -1, 1);
-		generateRandomFloatArray(InitVel, -1, 1);
-		float RndCircRad = generateRandomFloat(-1, 1);*/
+		generateRandomFloatArray(InitPos, -.7, .7);
+		//generateRandomFloatArray(InitVel, -.01, .01);
+		float RndCircRad = generateRandomFloat(0.2, 0.3);
 		
-		float RndCircRad = 0.5f;
+		
 
 		Object circ(InitPos, InitVel);
 		circ.setRad(RndCircRad);
@@ -166,8 +167,15 @@ int main(void)
 			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
 			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
 
+			// Calculate the offset for the second set of elements
+			int offset = TempMesh.size();
+
+			// Adjust the indices of the second set of elements
+			for (size_t i = 0; i < TempElem.size(); ++i) {
+				TempElem[i] += offset;
+			}
 			// Concatenate vertices and elements from circles and combine into single mesh
-			mesh.insert(TempMesh.end(), TempMesh.begin(), TempMesh.end());
+			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
 			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
 
 		}
@@ -195,15 +203,15 @@ int main(void)
 					GameObjects[i].handleWallCollision();
 				}
 			}
-
-
+			
+			
 			uint32_t vao = Renderer.uploadMesh(mesh, elem);
 			Renderer.drawMesh(vao, elem.size());
 			Renderer.unloadMesh(vao);
-
+			
 			glfwSwapBuffers(window);
 			glfwPollEvents();
-
+			
 
 		}
 		
