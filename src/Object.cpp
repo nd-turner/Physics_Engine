@@ -15,6 +15,7 @@ Object::Object(float InitPos[3], float InitVel[3]) {
 
 };
 
+
 void Object::updatePosition(float pos[3]) {
     for (int i = 0; i < 3; i++) {
         this->Pos[i] = pos[i];
@@ -83,7 +84,11 @@ const float* Object::getVelocity() const {
     return Vel;
 };
 
-std::vector<Vertex> Object::generateCircleMesh(float radius) {
+const float Object::getRad() const {
+    return Rad;
+};
+
+std::vector<Vertex> Object::generateCircleMesh() {
 	std::vector<Vertex> GeoMesh;
 
     const float centerX = Pos[0];
@@ -92,8 +97,8 @@ std::vector<Vertex> Object::generateCircleMesh(float radius) {
 
         for (int i = 0; i < Res; ++i) {
             float theta = 2 * 3.14159f * static_cast<float>(i) / Res; //build two halves of the circle
-            float x = centerX + radius * cos(theta);
-            float y = centerY + radius * sin(theta);
+            float x = centerX + Rad * cos(theta);
+            float y = centerY + Rad * sin(theta);
             float z = Pos[2];
 
             GeoMesh.emplace_back(x, y, z);

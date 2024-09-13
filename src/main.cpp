@@ -27,6 +27,22 @@
 
 static Timer tickMaster;
 
+// Function to generate a random float between min and max
+float generateRandomFloat(float min, float max) {
+	std::random_device rd;  // Obtain a random number from hardware
+	std::mt19937 gen(rd()); // Seed the generator
+	std::uniform_real_distribution<> dis(min, max); // Define the range
+
+	return dis(gen);
+}
+
+// Function to generate a random float array of size 3
+void generateRandomFloatArray(float arr[3], float min, float max) {
+	for (int i = 0; i < 3; ++i) {
+		arr[i] = generateRandomFloat(min, max);
+	}
+}
+
 
 extern "C"
 {
@@ -69,13 +85,34 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
-	//float CircInitPos[3] = { 0,.7,0 };
+	int numCirc = 1;
 	
 	float InitPos[3] = { 0.0f,0.7f,0.0f };
 	float InitVel[3] = { -0.01f,0.01f,0.0f };
 	float Circ1Rad = 0.1f;
 
-	Object Circle1(InitPos,InitVel);
+
+	
+	std::vector<Object> GameObjects;
+
+
+	//generates 5 randomly initialized circles and stores them in GameObjects vector
+	for (int i = 0; i < numCirc; i++) {
+		float InitPos[3] = { 0.0f,0.7f,0.0f };
+		float InitVel[3] = { -0.01f,0.01f,0.0f };
+		
+		/*generateRandomFloatArray(InitPos, -1, 1);
+		generateRandomFloatArray(InitVel, -1, 1);
+		float RndCircRad = generateRandomFloat(-1, 1);*/
+		
+		float RndCircRad = 0.5f;
+
+		Object circ(InitPos, InitVel);
+		circ.setRad(RndCircRad);
+
+		GameObjects.emplace_back(circ);
+	}
+	
 	
 	Renderer Renderer;
 
@@ -122,46 +159,55 @@ int main(void)
 		std::vector<Vertex> mesh;
 		std::vector<int> elem;
 		
-		//generate first circle
-		std::vector<Vertex> mesh1 = Circle1.generateCircleMesh(Circ1Rad);
-		std::vector<int> elem1 = Circle1.generateCircleElem(mesh1);
-		
-		// Concatenate vertices and elements from both circles into a single mesh
-		mesh.insert(mesh.end(), mesh1.begin(), mesh1.end());
+		//generate all of the game objects
 
+		for (int i = 0; i < GameObjects.size(); i++) {
+
+			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
+			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
+
+			// Concatenate vertices and elements from circles and combine into single mesh
+			mesh.insert(TempMesh.end(), TempMesh.begin(), TempMesh.end());
+			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
+
+		}
 		// Concatenate elements from both circles into a single set of elements
-		elem.insert(elem.end(), elem1.begin(), elem1.end());
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
 			loopCount++;
 
-			const float* pos = Circle1.getPosition();
-			const float* vel = Circle1.getVelocity();
+			//go through all game objects
+			for (int i = 0; i < GameObjects.size(); i++) {
+				const float* pos = GameObjects[i].getPosition();
+				const float* vel = GameObjects[i].getVelocity();
 
-			float newPosition[3];
+				float newPosition[3];
 
-			for (int i = 0; i < 3; ++i) {
-				newPosition[i] = pos[i] + vel[i];
+				for (int j = 0; j < 3; j++) {
+					newPosition[j] = pos[j] + vel[j];
+				}
+
+				GameObjects[i].updatePosition(newPosition);
+
+				// Check for collisions
+				if (GameObjects[i].isColliding()) {
+					GameObjects[i].handleWallCollision();
+				}
 			}
 
-			Circle1.updatePosition(newPosition);
 
-			// Check for collisions
-			if (Circle1.isColliding()) {
-				Circle1.handleWallCollision();
-			}
-			
 			uint32_t vao = Renderer.uploadMesh(mesh, elem);
 			Renderer.drawMesh(vao, elem.size());
 			Renderer.unloadMesh(vao);
-			
+
 			glfwSwapBuffers(window);
 			glfwPollEvents();
-			
+
 
 		}
 		
 	}
 	//glDeleteTextures(1, &texture);
 }
+
