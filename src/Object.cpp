@@ -6,22 +6,95 @@
 
 #include "Object.h"
 
-Object::Object() {
-
+Object::Object(float InitPos[3], float InitVel[3]) {
+    
+    for (int i = 0; i < 3; ++i) {
+        this->Pos[i] = InitPos[i];  // Copy InitPos elements
+        this->Vel[i] = InitVel[i];  // Copy InitVel elements
+    }
 
 };
 
-std::vector<Vertex> Object::generateCircleMesh(float radius, float pos[3], int resolution) {
+void Object::updatePosition(float pos[3]) {
+    for (int i = 0; i < 3; i++) {
+        this->Pos[i] = pos[i];
+    }
+};
+
+
+void Object::updateVelocity(float vel[3]) {
+    for (int i = 0; i < 3; i++) {
+        this->Vel[i] = vel[i];
+    }
+
+};
+
+
+
+//is object colliding with another wall
+bool Object::isColliding() const {
+
+    if (abs(Pos[1]) > 1 || abs(Pos[0]) > 1) {
+
+        return true;
+
+    }
+
+
+    return false;
+};
+
+void Object::handleWallCollision() {
+
+    // Boundary values
+    const float boundary = 1.0f;
+    const float damping = 0.95f;
+
+    // Handle collision with the walls
+    if (Pos[0] > boundary) {
+        Pos[0] = boundary;          // Correct position
+        Vel[0] *= -damping;        // Reflect and dampen velocity
+    }
+    else if (Pos[0] < -boundary) {
+        Pos[0] = -boundary;         // Correct position
+        Vel[0] *= -damping;        // Reflect and dampen velocity
+    }
+
+    if (Pos[1] > boundary) {
+        Pos[1] = boundary;          // Correct position
+        Vel[1] *= -damping;        // Reflect and dampen velocity
+    }
+    else if (Pos[1] < -boundary) {
+        Pos[1] = -boundary;         // Correct position
+        Vel[1] *= -damping;        // Reflect and dampen velocity
+    }
+};
+
+void Object::handleObjectCollision() {
+
+};
+
+
+const float* Object::getPosition() const {
+    return Pos;
+};
+
+const float* Object::getVelocity() const {
+    return Vel;
+};
+
+std::vector<Vertex> Object::generateCircleMesh(float radius) {
 	std::vector<Vertex> GeoMesh;
 
-    const float centerX = pos[0];
-    const float centerY = pos[1];
+    const float centerX = Pos[0];
+    const float centerY = Pos[1];
+    int Res = resolution;
 
-        for (int i = 0; i < resolution; ++i) {
-            float theta = 2 * 3.14159f * static_cast<float>(i) / resolution; //build two halves of the circle
+        for (int i = 0; i < Res; ++i) {
+            float theta = 2 * 3.14159f * static_cast<float>(i) / Res; //build two halves of the circle
             float x = centerX + radius * cos(theta);
             float y = centerY + radius * sin(theta);
-            float z = pos[2];
+            float z = Pos[2];
 
             GeoMesh.emplace_back(x, y, z);
         }
