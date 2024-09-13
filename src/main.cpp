@@ -103,7 +103,7 @@ int main(void)
 		float InitVel[3] = { -0.00f,0.0f,0.0f };
 		
 		generateRandomFloatArray(InitPos, -.7, .7);
-		//generateRandomFloatArray(InitVel, -.01, .01);
+		generateRandomFloatArray(InitVel, -.01, .01);
 		float RndCircRad = generateRandomFloat(0.2, 0.3);
 		
 		
@@ -162,22 +162,27 @@ int main(void)
 		
 		//generate all of the game objects
 
-		for (int i = 0; i < GameObjects.size(); i++) {
+		// Initialize cumulative offset
+		int cumulativeOffset = 0;
 
+		for (int i = 0; i < GameObjects.size(); i++) {
 			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
 			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
 
-			// Calculate the offset for the second set of elements
-			int offset = TempMesh.size();
+			// Calculate the offset for the current set of elements
+			int currentOffset = cumulativeOffset;
 
-			// Adjust the indices of the second set of elements
-			for (size_t i = 0; i < TempElem.size(); ++i) {
-				TempElem[i] += offset;
+			// Adjust the indices of the current set of elements
+			for (size_t j = 0; j < TempElem.size(); ++j) {
+				TempElem[j] += currentOffset;
 			}
-			// Concatenate vertices and elements from circles and combine into single mesh
+
+			// Concatenate vertices and elements from the current game object
 			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
 			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
 
+			// Update the cumulative offset for the next iteration
+			cumulativeOffset += TempMesh.size();
 		}
 		// Concatenate elements from both circles into a single set of elements
 
