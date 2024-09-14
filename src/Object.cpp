@@ -48,25 +48,26 @@ bool Object::isColliding() const {
 void Object::handleWallCollision() {
 
     // Boundary values
-    const float boundary = 1.0f;
+    const float error = 0.0f;
+    const float boundary = 1.0f-error;
     const float damping = 0.95f;
 
     // Handle collision with the walls
-    if (Pos[0] > boundary) {
-        Pos[0] = boundary;          // Correct position
+    if (Pos[0] > boundary-Rad) {
+        Pos[0] = boundary-Rad;          // Correct position
         Vel[0] *= -damping;        // Reflect and dampen velocity
     }
-    else if (Pos[0] < -boundary) {
-        Pos[0] = -boundary;         // Correct position
+    else if (Pos[0] < -boundary+Rad) {
+        Pos[0] = -boundary+Rad;         // Correct position
         Vel[0] *= -damping;        // Reflect and dampen velocity
     }
 
-    if (Pos[1] > boundary) {
-        Pos[1] = boundary;          // Correct position
+    else if (Pos[1] > boundary-Rad) {
+        Pos[1] = boundary-Rad;          // Correct position
         Vel[1] *= -damping;        // Reflect and dampen velocity
     }
-    else if (Pos[1] < -boundary) {
-        Pos[1] = -boundary;         // Correct position
+    else if (Pos[1] < -boundary+Rad) {
+        Pos[1] = -boundary+Rad;         // Correct position
         Vel[1] *= -damping;        // Reflect and dampen velocity
     }
 };

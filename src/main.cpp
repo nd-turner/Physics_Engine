@@ -11,6 +11,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 #include <glad/glad.h>
 
@@ -42,7 +43,6 @@ void generateRandomFloatArray(float arr[3], float min, float max) {
 		arr[i] = generateRandomFloat(min, max);
 	}
 }
-
 
 extern "C"
 {
@@ -103,7 +103,7 @@ int main(void)
 		float InitVel[3] = { -0.00f,0.0f,0.0f };
 		
 		generateRandomFloatArray(InitPos, -.7, .7);
-		generateRandomFloatArray(InitVel, -.01, .01);
+		generateRandomFloatArray(InitVel, -1, 1);
 		float RndCircRad = generateRandomFloat(0.2, 0.3);
 		
 		
@@ -144,6 +144,9 @@ int main(void)
 	//stbi_image_free(image_data);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
+	
+	
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -151,20 +154,26 @@ int main(void)
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		tickMaster.tick();
 		int currentTick = tickMaster.getTicks();
-		
+		float dt = static_cast<float>(tickMaster.getDt());
+
 		//mesh and elem matrix for the entire screen
 		std::vector<Vertex> mesh;
 		std::vector<int> elem;
-		
-		//generate all of the game objects
+
+
 
 		// Initialize cumulative offset
-		int cumulativeOffset = 0;
+		
+		auto start = std::chrono::high_resolution_clock::now();
 
+		
+		int cumulativeOffset = 0;
+		
 		for (int i = 0; i < GameObjects.size(); i++) {
 			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
 			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
@@ -173,18 +182,26 @@ int main(void)
 			int currentOffset = cumulativeOffset;
 
 			// Adjust the indices of the current set of elements
-			for (size_t j = 0; j < TempElem.size(); ++j) {
-				TempElem[j] += currentOffset;
+			for (int j = 0; j< TempElem.size(); j++) {
+				TempElem[j] += cumulativeOffset;
+
 			}
+			
 
 			// Concatenate vertices and elements from the current game object
 			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
 			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-
+			std::cout << "Mesh size: " << mesh.size() << " Elem size: " << elem.size() << std::endl;
 			// Update the cumulative offset for the next iteration
 			cumulativeOffset += TempMesh.size();
+
+			std::cout << "Current offset: " << currentOffset << std::endl;
+			std::cout << "Cumulative offset: " << cumulativeOffset << std::endl;
 		}
-		// Concatenate elements from both circles into a single set of elements
+
+	
+
+		auto end = std::chrono::high_resolution_clock::now();
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
@@ -198,7 +215,7 @@ int main(void)
 				float newPosition[3];
 
 				for (int j = 0; j < 3; j++) {
-					newPosition[j] = pos[j] + vel[j];
+					newPosition[j] = pos[j] + vel[j]*dt;
 				}
 
 				GameObjects[i].updatePosition(newPosition);
@@ -207,19 +224,20 @@ int main(void)
 				if (GameObjects[i].isColliding()) {
 					GameObjects[i].handleWallCollision();
 				}
+
+				
 			}
 			
-			
-			uint32_t vao = Renderer.uploadMesh(mesh, elem);
-			Renderer.drawMesh(vao, elem.size());
-			Renderer.unloadMesh(vao);
-			
-			glfwSwapBuffers(window);
-			glfwPollEvents();
-			
-
 		}
+
+		uint32_t vao = Renderer.uploadMesh(mesh, elem);
+		Renderer.drawMesh(vao, elem.size());
+		Renderer.unloadMesh(vao);
+
 		
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 	//glDeleteTextures(1, &texture);
 }

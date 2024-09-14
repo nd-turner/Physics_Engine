@@ -16,7 +16,7 @@ class Object{
         
         int color[3] = { 48 ,159 ,232 };   //default rgb values
 
-        int resolution = 10000;     // default Resolution for generating mesh gen
+        int resolution = 100;     // default Resolution for generating mesh gen
         float Rad =0.5f;
 
     public:
