@@ -58,6 +58,86 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 	
 }
 
+//implement simple collision detection based of the circlular nature of the object (will implement SAT for better performance down the road)
+bool checkCollisionDetection(const Object& circle1, const Object& circle2) {
+
+	//lets get the position of each circle
+	const float* pos1 = circle1.getPosition();
+	const float* pos2 = circle2.getPosition();
+
+	//lets get the radius of each circle
+	float rad1 = circle1.getRad();
+	float rad2 = circle2.getRad();
+
+	//lets check if the sum of the radius's ^2 is smaller than the distance between the circles
+	float radiSumSquared = (rad1 + rad2) * (rad1 + rad2);
+
+	float dx = pos2[0] - pos1[0];
+	float dy = pos2[1] - pos1[1];
+
+	dx *= dx;
+	dy *= dy;
+
+	float distanceSquared = dx + dy;
+
+
+	return distanceSquared <= radiSumSquared;
+}
+
+void HandleCollision( Object& circle1,  Object& circle2) {
+
+	//lets get the position of each circle
+	const float* pos1 = circle1.getPosition();
+	const float* pos2 = circle2.getPosition();
+
+	//lets get the radius of each circle
+	float rad1 = circle1.getRad();
+	float rad2 = circle2.getRad();
+
+	//lets check if the sum of the radius's ^2 is smaller than the distance between the circles
+	float radiSumSquared = (rad1 + rad2) * (rad1 + rad2);
+
+	float dx = pos2[0] - pos1[0];
+	float dy = pos2[1] - pos1[1];
+
+
+	// Calculate the distance between the circles
+	float distance = std::sqrt(dx * dx + dy * dy);
+	float overlap = (rad1 + rad2) - distance;
+	
+
+
+	// If there is an overlap, resolve it
+	if (overlap > 0) {
+		// Normalize the collision vector
+		float nx = dx / distance;
+		float ny = dy / distance;
+
+		// Move circles apart based on overlap
+		float halfOverlap = overlap / 2.0f;
+		float newPos1[3] = { pos1[0] - nx * halfOverlap, pos1[1] - ny * halfOverlap, 0.0f };
+		float newPos2[3] = { pos2[0] + nx * halfOverlap, pos2[1] + ny * halfOverlap, 0.0f };
+
+		circle1.updatePosition(newPos1);
+		circle2.updatePosition(newPos2);
+
+		// Calculate new velocities after collision
+		const float* vel1 = circle1.getVelocity();
+		const float* vel2 = circle2.getVelocity();
+
+		// Simple elastic collision response (reflecting velocities)
+		float newVel1[3] = { -vel1[0], -vel1[1], 0.0f }; // Reflect velocity for circle1
+		float newVel2[3] = { -vel2[0], -vel2[1], 0.0f }; // Reflect velocity for circle2
+
+		circle1.updateVelocity(newVel1);
+		circle2.updateVelocity(newVel2);
+	}
+
+
+}
+
+
+
 int main(void)
 {
 	glfwSetErrorCallback(glfw_Error_Callback);
@@ -87,32 +167,31 @@ int main(void)
 
 	int numCirc = 5;
 	
-	float InitPos[3] = { 0.0f,0.7f,0.0f };
-	float InitVel[3] = { -0.01f,0.01f,0.0f };
+	float InitPos[3] = { 0.0f, 0.7f, 0.0f };
+	float InitVel[3] = { -1.0f, 3.0f, 0.0f };
 	float Circ1Rad = 0.1f;
 
+	float InitPos2[3] = { 0.5f, -0.5f, 0.0f };
+	float InitVel2[3] = { 1.0f, 3.0f, 0.0f };
+	float Circ1Rad2 = 0.1f;
 
-	
+	float InitPos3[3] = { -0.6f, 0.4f, 0.0f };
+	float InitVel3[3] = { 0.8f, -2.0f, 0.0f };
+	float Circ1Rad3 = 0.1f;
+
+	float InitPos4[3] = { -0.3f, -0.9f, 0.0f };
+	float InitVel4[3] = { 0.5f, 1.5f, 0.0f };
+	float Circ1Rad4 = 0.1f;
+
+	float InitPos5[3] = { -0.3f, 0.9f, 0.0f };
+	float InitVel5[3] = { -0.5f, -1.5f, 0.0f };
+	float Circ1Rad5 = 0.1f;
+
+	float InitPos6[3] = { 0.3f, -0.9f, 0.0f };
+	float InitVel6[3] = { -0.5f, 1.0f, 0.0f };
+	float Circ1Rad6 = 0.1f;
+
 	std::vector<Object> GameObjects;
-
-
-	//generates 5 randomly initialized circles and stores them in GameObjects vector
-	for (int i = 0; i < numCirc; i++) {
-
-		float InitPos[3] = { 0.0f,0.7f,0.0f };
-		float InitVel[3] = { -0.00f,0.0f,0.0f };
-		
-		generateRandomFloatArray(InitPos, -.7, .7);
-		generateRandomFloatArray(InitVel, -1, 1);
-		float RndCircRad = generateRandomFloat(0.2, 0.3);
-		
-		
-
-		Object circ(InitPos, InitVel);
-		circ.setRad(RndCircRad);
-
-		GameObjects.emplace_back(circ);
-	}
 	
 	
 	Renderer Renderer;
@@ -145,7 +224,32 @@ int main(void)
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
 	
+	//
 	
+	Object circle1(InitPos, InitVel);
+	circle1.setRad(.1);
+
+	Object circle2(InitPos2, InitVel2);
+	circle2.setRad(.1);
+
+	Object circle3(InitPos3, InitVel3);
+	circle3.setRad(.1);
+
+	Object circle4(InitPos4, InitVel4);
+	circle4.setRad(.1);
+
+	Object circle5(InitPos5, InitVel5);
+	circle5.setRad(.1);
+
+	Object circle6(InitPos6, InitVel6);
+	circle6.setRad(.1);
+
+	GameObjects.push_back(circle1);
+	GameObjects.push_back(circle2);
+	GameObjects.push_back(circle3);
+	GameObjects.push_back(circle4);
+	GameObjects.push_back(circle5);
+	GameObjects.push_back(circle6);
 
 
 	while (!glfwWindowShouldClose(window))
@@ -165,76 +269,75 @@ int main(void)
 		std::vector<Vertex> mesh;
 		std::vector<int> elem;
 
-
-
-		// Initialize cumulative offset
 		
-		auto start = std::chrono::high_resolution_clock::now();
+		int vertexOffset = 0;  // Track the current number of vertices
 
 		
-		int cumulativeOffset = 0;
-		
+
 		for (int i = 0; i < GameObjects.size(); i++) {
+
 			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
 			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
 
-			// Calculate the offset for the current set of elements
-			int currentOffset = cumulativeOffset;
-
-			// Adjust the indices of the current set of elements
-			for (int j = 0; j< TempElem.size(); j++) {
-				TempElem[j] += cumulativeOffset;
-
-			}
-			
-
 			// Concatenate vertices and elements from the current game object
 			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
-			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-			std::cout << "Mesh size: " << mesh.size() << " Elem size: " << elem.size() << std::endl;
-			// Update the cumulative offset for the next iteration
-			cumulativeOffset += TempMesh.size();
 
-			std::cout << "Current offset: " << currentOffset << std::endl;
-			std::cout << "Cumulative offset: " << cumulativeOffset << std::endl;
+			for (int& elemIndex : TempElem) {
+				elemIndex += vertexOffset;  // Offset the indices
+			}
+
+
+			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
+
+			vertexOffset += TempMesh.size();
 		}
 
-	
-
-		auto end = std::chrono::high_resolution_clock::now();
+			std::cout << "Mesh size: " << mesh.size() << " Elem size: " << elem.size() << std::endl;
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
 			loopCount++;
 
+			for (int i = 0; i < GameObjects.size(); i++) {
+				
+			}
+
 			//go through all game objects
 			for (int i = 0; i < GameObjects.size(); i++) {
+
 				const float* pos = GameObjects[i].getPosition();
 				const float* vel = GameObjects[i].getVelocity();
 
 				float newPosition[3];
 
 				for (int j = 0; j < 3; j++) {
-					newPosition[j] = pos[j] + vel[j]*dt;
+					newPosition[j] = pos[j] + vel[j] * dt;
 				}
 
 				GameObjects[i].updatePosition(newPosition);
-
-				// Check for collisions
 				if (GameObjects[i].isColliding()) {
 					GameObjects[i].handleWallCollision();
+
 				}
 
+				for (int j = i + 1; j < GameObjects.size(); j++) {
+
+					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {
+						
+						//a collision has occured lets handle it
+						HandleCollision(GameObjects[i], GameObjects[j]);
+
+					}
+				}
 				
 			}
-			
+				
+
 		}
 
 		uint32_t vao = Renderer.uploadMesh(mesh, elem);
 		Renderer.drawMesh(vao, elem.size());
 		Renderer.unloadMesh(vao);
-
-		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

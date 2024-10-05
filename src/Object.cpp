@@ -1,4 +1,4 @@
-#include "Object.h"
+
 #pragma once
 
 #include "Vertex.h" 
@@ -15,13 +15,11 @@ Object::Object(float InitPos[3], float InitVel[3]) {
 
 };
 
-
 void Object::updatePosition(float pos[3]) {
     for (int i = 0; i < 3; i++) {
         this->Pos[i] = pos[i];
     }
 };
-
 
 void Object::updateVelocity(float vel[3]) {
     for (int i = 0; i < 3; i++) {
@@ -29,8 +27,6 @@ void Object::updateVelocity(float vel[3]) {
     }
 
 };
-
-
 
 //is object colliding with another wall
 bool Object::isColliding() const {
@@ -75,7 +71,6 @@ void Object::handleWallCollision() {
 void Object::handleObjectCollision() {
 
 };
-
 
 const float* Object::getPosition() const {
     return Pos;
