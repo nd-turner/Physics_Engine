@@ -22,6 +22,7 @@
 #include "Vertex.h"
 #include "Renderer.h"
 #include "Object.h"
+#include "Force.h"
 
 #define USE_GPU_ENGINE 0
 
@@ -58,12 +59,18 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 	
 }
 
+
+
 //implement simple collision detection based of the circlular nature of the object (will implement SAT for better performance down the road)
 bool checkCollisionDetection(const Object& circle1, const Object& circle2) {
 
 	//lets get the position of each circle
 	const float* pos1 = circle1.getPosition();
 	const float* pos2 = circle2.getPosition();
+	
+		float mass1 = circle1.getMass();
+		float mass2 = circle2.getMass();
+
 
 	//lets get the radius of each circle
 	float rad1 = circle1.getRad();
@@ -138,6 +145,7 @@ void HandleCollision( Object& circle1,  Object& circle2) {
 
 
 
+
 int main(void)
 {
 	glfwSetErrorCallback(glfw_Error_Callback);
@@ -154,6 +162,8 @@ int main(void)
 	
 	glfwSetKeyCallback(window, key_callback);
 	glfwMakeContextCurrent(window);
+
+	
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glClearColor(.0, .3, .6, 0);
 	glfwSwapInterval(1);
@@ -165,37 +175,20 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
-	int numCirc = 5;
+	int numCirc = 1;
 	
 	float InitPos[3] = { 0.0f, 0.7f, 0.0f };
-	float InitVel[3] = { -1.0f, 3.0f, 0.0f };
+	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 	float Circ1Rad = 0.1f;
 
-	float InitPos2[3] = { 0.5f, -0.5f, 0.0f };
-	float InitVel2[3] = { 1.0f, 3.0f, 0.0f };
-	float Circ1Rad2 = 0.1f;
-
-	float InitPos3[3] = { -0.6f, 0.4f, 0.0f };
-	float InitVel3[3] = { 0.8f, -2.0f, 0.0f };
-	float Circ1Rad3 = 0.1f;
-
-	float InitPos4[3] = { -0.3f, -0.9f, 0.0f };
-	float InitVel4[3] = { 0.5f, 1.5f, 0.0f };
-	float Circ1Rad4 = 0.1f;
-
-	float InitPos5[3] = { -0.3f, 0.9f, 0.0f };
-	float InitVel5[3] = { -0.5f, -1.5f, 0.0f };
-	float Circ1Rad5 = 0.1f;
-
-	float InitPos6[3] = { 0.3f, -0.9f, 0.0f };
-	float InitVel6[3] = { -0.5f, 1.0f, 0.0f };
-	float Circ1Rad6 = 0.1f;
-
+	float TopInitPos[3] = { 0.0f, 0.7f, 0.0f };
+	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
+	
 	std::vector<Object> GameObjects;
 	
 	
 	Renderer Renderer;
-
+	Force forces;
 
 
 	//texture
@@ -225,32 +218,24 @@ int main(void)
 
 	
 	//
+
+	Object Top(TopInitPos, TopInitVel);
+
 	
+	// Define circle1 outside the callback and then capture it properly in the lambda.
 	Object circle1(InitPos, InitVel);
-	circle1.setRad(.1);
-
-	Object circle2(InitPos2, InitVel2);
-	circle2.setRad(.1);
-
-	Object circle3(InitPos3, InitVel3);
-	circle3.setRad(.1);
-
-	Object circle4(InitPos4, InitVel4);
-	circle4.setRad(.1);
-
-	Object circle5(InitPos5, InitVel5);
-	circle5.setRad(.1);
-
-	Object circle6(InitPos6, InitVel6);
-	circle6.setRad(.1);
-
+	circle1.setRad(0.1f);
 	GameObjects.push_back(circle1);
-	GameObjects.push_back(circle2);
-	GameObjects.push_back(circle3);
-	GameObjects.push_back(circle4);
-	GameObjects.push_back(circle5);
-	GameObjects.push_back(circle6);
 
+	
+
+	// Set the user pointer to point to the correct object
+	glfwSetWindowUserPointer(window, &circle1);
+
+
+	// Set the mouse button callback
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -269,16 +254,23 @@ int main(void)
 		std::vector<Vertex> mesh;
 		std::vector<int> elem;
 
-		
 		int vertexOffset = 0;  // Track the current number of vertices
 
-		
+		std::vector<Vertex> topMesh = Top.generateRectangleMesh();
+		std::vector<int>topElem = Top.generateRectangleElem(topMesh);
+		// Add the top mesh to the overall mesh
+		//mesh.insert(mesh.end(), topMesh.begin(), topMesh.end());
 
+		// Add the top elements to the overall elements list
+		//elem.insert(elem.end(), topElem.begin(), topElem.end());
 		for (int i = 0; i < GameObjects.size(); i++) {
+
+			
 
 			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
 			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
 
+			
 			// Concatenate vertices and elements from the current game object
 			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
 
@@ -286,27 +278,20 @@ int main(void)
 				elemIndex += vertexOffset;  // Offset the indices
 			}
 
-
 			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-
 			vertexOffset += TempMesh.size();
 		}
-
-			std::cout << "Mesh size: " << mesh.size() << " Elem size: " << elem.size() << std::endl;
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
 			loopCount++;
-
-			for (int i = 0; i < GameObjects.size(); i++) {
-				
-			}
 
 			//go through all game objects
 			for (int i = 0; i < GameObjects.size(); i++) {
 
 				const float* pos = GameObjects[i].getPosition();
 				const float* vel = GameObjects[i].getVelocity();
+				
 
 				float newPosition[3];
 
@@ -315,24 +300,48 @@ int main(void)
 				}
 
 				GameObjects[i].updatePosition(newPosition);
+		
+				forces.gravity(GameObjects[i]);
+
 				if (GameObjects[i].isColliding()) {
 					GameObjects[i].handleWallCollision();
 
 				}
 
-				for (int j = i + 1; j < GameObjects.size(); j++) {
+				//this checks if an object is draggable
+				bool drag = isDraggable(window, GameObjects[i]);
 
-					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {
+				if (drag) {
+					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
+
+					int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
+					if (leftMousePressed == GLFW_PRESS) {
 						
-						//a collision has occured lets handle it
-						HandleCollision(GameObjects[i], GameObjects[j]);
+						double mouseX, mouseY;
+						glfwGetCursorPos(window, &mouseX, &mouseY);
 
+						
+						float normMx = (2.0f * (float)mouseX) / (float)width - 1.0f;
+						float normMy = (2.0f * ((float)height - (float)mouseY)) / (float)height - 1.0f;
+
+						float newPos[3] = { normMx, normMy, 0.0f };  // Set z-coordinate as needed
+
+						
+						GameObjects[i].updatePosition(newPos);
 					}
-				}
-				
-			}
-				
 
+				}
+				else {
+					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
+				}
+
+				for (int j = i + 1; j < GameObjects.size(); j++) {
+					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {						
+						HandleCollision(GameObjects[i], GameObjects[j]);
+					}					
+				}		
+			}			
 		}
 
 		uint32_t vao = Renderer.uploadMesh(mesh, elem);
