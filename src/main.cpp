@@ -179,9 +179,18 @@ int main(void)
 	
 	float InitPos[3] = { 0.0f, 0.7f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
+
+
 	float Circ1Rad = 0.1f;
 
-	float TopInitPos[3] = { 0.0f, 0.7f, 0.0f };
+	float circle2IinitPos[3] = { 0.2f,0.7f,0.0f };
+	float circle3IinitPos[3] = { 0.4f,0.7f,0.0f };
+	float circle4IinitPos[3] = { 0.6f,0.7f,0.0f };
+	float circle5IinitPos[3] = { 0.8f,0.7f,0.0f };
+
+
+
+	float TopInitPos[3] = { 0.0f, 0.8f, 0.0f };
 	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
 	
 	std::vector<Object> GameObjects;
@@ -223,17 +232,40 @@ int main(void)
 
 	
 	// Define circle1 outside the callback and then capture it properly in the lambda.
+	
+
+	//circle 1 def
 	Object circle1(InitPos, InitVel);
 	circle1.setRad(0.1f);
 	GameObjects.push_back(circle1);
 
-	Object rectangle(TopInitPos, TopInitVel);
-	
 
-	
+	//circle 2 def
+	Object circle2(circle2IinitPos, InitVel);
+	circle2.setRad(0.1f);
+	GameObjects.push_back(circle2);
+
+
+	//circle 3 def
+	Object circle3(circle3IinitPos, InitVel);
+	circle3.setRad(0.1f);
+	GameObjects.push_back(circle3);
+
+	//circle 4 def
+	Object circle4(circle4IinitPos, InitVel);
+	circle4.setRad(0.1f);
+	GameObjects.push_back(circle4);
+
+	//circle 5 def
+	Object circle5(circle5IinitPos, InitVel);
+	circle5.setRad(0.1f);
+	GameObjects.push_back(circle5);
+
+	Object rectangle(TopInitPos, TopInitVel);
 
 	// Set the user pointer to point to the correct object
 	glfwSetWindowUserPointer(window, &circle1);
+	
 
 
 	// Set the mouse button callback
@@ -261,18 +293,16 @@ int main(void)
 
 		std::vector<Vertex> topMesh = Top.generateRectangleMesh();
 		std::vector<int>topElem = Top.generateRectangleElem(topMesh);
-		// Add the top mesh to the overall mesh
-		//mesh.insert(mesh.end(), topMesh.begin(), topMesh.end());
 
-		// Add the top elements to the overall elements list
-		//elem.insert(elem.end(), topElem.begin(), topElem.end());
 		
 
 			std::vector<Vertex> TempMesh = GameObjects[0].generateCircleMesh();
 			std::vector<int> TempElem = GameObjects[0].generateCircleElem(TempMesh);
+			
+
 
 						// Concatenate vertices and elements from the current game object
-			for (int i = 0; i < GameObjects.size(); i++) {
+			for (int i = 0; i < GameObjects.size(); ++i) {
 				// Generate the mesh and elements for the current game object (circle)
 				std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
 				std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
@@ -295,7 +325,13 @@ int main(void)
 				// Update the vertexOffset for the next game object (circle)
 				vertexOffset += TempMesh.size(); // Increase the offset by the number of vertices in the current mesh
 			}
-		
+			
+			for (int& elemIndex : topElem) {
+				elemIndex += vertexOffset;  // Offset to avoid index conflicts
+			}
+
+			mesh.insert(mesh.end(), topMesh.begin(), topMesh.end());
+			elem.insert(elem.end(), topElem.begin(), topElem.end());
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
@@ -303,6 +339,7 @@ int main(void)
 
 			//go through all game objects
 			for (int i = 0; i < GameObjects.size(); i++) {
+				bool isAnyDraggable = false;
 
 				const float* pos = GameObjects[i].getPosition();
 				const float* vel = GameObjects[i].getVelocity();
@@ -327,7 +364,7 @@ int main(void)
 				bool drag = isDraggable(window, GameObjects[i]);
 
 				if (drag) {
-					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
+					bool isAnyDraggable = true;  // At least one object is draggable
 
 					int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
@@ -348,9 +385,13 @@ int main(void)
 					}
 
 				}
-				else {
+				
+				// Update the cursor **after** checking all objects
+				if (isAnyDraggable) {
+					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
+				} else {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
-				}
+}
 
 				for (int j = i + 1; j < GameObjects.size(); j++) {
 					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {						
