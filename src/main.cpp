@@ -227,6 +227,9 @@ int main(void)
 	circle1.setRad(0.1f);
 	GameObjects.push_back(circle1);
 
+	Object rectangle(TopInitPos, TopInitVel);
+	
+
 	
 
 	// Set the user pointer to point to the correct object
@@ -263,24 +266,36 @@ int main(void)
 
 		// Add the top elements to the overall elements list
 		//elem.insert(elem.end(), topElem.begin(), topElem.end());
-		for (int i = 0; i < GameObjects.size(); i++) {
+		
 
-			
+			std::vector<Vertex> TempMesh = GameObjects[0].generateCircleMesh();
+			std::vector<int> TempElem = GameObjects[0].generateCircleElem(TempMesh);
 
-			std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
-			std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
+						// Concatenate vertices and elements from the current game object
+			for (int i = 0; i < GameObjects.size(); i++) {
+				// Generate the mesh and elements for the current game object (circle)
+				std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
+				std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
 
-			
-			// Concatenate vertices and elements from the current game object
-			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
+				// Debugging: Print current mesh and element counts for each game object
+				std::cout << "GameObject " << i << " Mesh Vertices Count: " << TempMesh.size() << std::endl;
+				std::cout << "GameObject " << i << " Elements Count: " << TempElem.size() << std::endl;
 
-			for (int& elemIndex : TempElem) {
-				elemIndex += vertexOffset;  // Offset the indices
+				// Concatenate the mesh of the current game object (circle) to the main mesh
+				mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
+
+				// Offset the element indices by the current vertexOffset
+				for (int& elemIndex : TempElem) {
+					elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
+				}
+
+				// Concatenate the element indices from the current game object to the main element list
+				elem.insert(elem.end(), TempElem.begin(), TempElem.end());
+
+				// Update the vertexOffset for the next game object (circle)
+				vertexOffset += TempMesh.size(); // Increase the offset by the number of vertices in the current mesh
 			}
-
-			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-			vertexOffset += TempMesh.size();
-		}
+		
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
@@ -329,6 +344,7 @@ int main(void)
 
 						
 						GameObjects[i].updatePosition(newPos);
+						GameObjects[i].updateVelocity(InitVel);
 					}
 
 				}

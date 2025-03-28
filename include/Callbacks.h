@@ -34,7 +34,7 @@ extern bool isDraggable(GLFWwindow* window, Object& obj) {
 		(Oypos - normMy) * (Oypos - normMy));
 
 	// Check if distance is within the radius
-	obj.Drag = (distance < rad);
+	obj.Drag = (distance < rad*1.25);
 
 	//glfwSetCursor(window, handCursor);
 	/*std::cout << "Mouse Pos: " << normMx << ", " << normMy << "\n";
