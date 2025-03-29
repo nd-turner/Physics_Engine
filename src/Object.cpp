@@ -85,6 +85,46 @@ const float Object::getMass() const {
     return Mass;
 };
 
+std::vector<Vertex> Object::generateMesh() {
+    std::vector<Vertex> GeoMesh;
+
+    const float centerX = Pos[0];
+    const float centerY = Pos[1];
+    int Res = resolution;
+
+    for (int i = 0; i < Res; ++i) {
+        float theta = 2 * 6.0f * static_cast<float>(i) / Res;
+        float x = centerX + Rad * cos(theta);
+        float y = centerY + Rad * sin(theta);
+        float z = Pos[2];
+
+        GeoMesh.emplace_back(x, y, z);
+    }
+
+    return GeoMesh;
+}
+
+std::vector<int> Object::generateElem(std::vector<Vertex> GeoMesh) {
+    std::vector<int> GeoElem;
+
+    int centerIndex = 0;
+
+    for (int i = 1; i < GeoMesh.size() - 1; ++i) {
+        GeoElem.push_back(centerIndex);
+        GeoElem.push_back(i);
+        GeoElem.push_back(i + 1);
+    }
+
+
+    GeoElem.push_back(centerIndex);
+    GeoElem.push_back(GeoMesh.size() - 1);
+    GeoElem.push_back(1);
+
+
+
+    return GeoElem;
+}
+
 std::vector<Vertex> Object::generateCircleMesh() {
 	std::vector<Vertex> GeoMesh;
 

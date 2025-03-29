@@ -4,9 +4,11 @@
 #include <vector>
 
 //an Object is basically going to be the building block of the physics engine think of it as a physics entity
+//the idea is for object to basically be the parent class for a variety of shapes
+
 class Object{
 
-    private:
+    protected:
         std::vector<Vertex> vertices;  // Store vertices for the object
         std::vector<int> elements;
 
@@ -24,13 +26,16 @@ class Object{
         bool Drag = false;
         
         Object(float InitPos[3], float InitVel[3]);
-        
+        virtual ~Object() {}
+
         //2d mesh geometry stuff
         std::vector<Vertex> generateCircleMesh();
         std::vector<int> generateCircleElem(std::vector<Vertex> GeoMesh);
         std::vector<Vertex> generateRectangleMesh();
         std::vector<int> generateRectangleElem(std::vector<Vertex> GeoMesh);
 
+        virtual std::vector<Vertex> generateMesh();
+        virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
 
         //Logic
         void updatePosition(float pos[3]);
@@ -41,21 +46,13 @@ class Object{
         }
 
         //collision handling
-        void handleWallCollision();
-        bool isColliding() const;
-
-      
+        virtual void handleWallCollision();
+        virtual bool isColliding() const;
 
         //return functions
-        const float* getPosition() const;
-        const float* getVelocity() const;
+        virtual const float* getPosition() const;
+        virtual const float* getVelocity() const;
         const float getRad() const;
-        const float getMass() const;
-
-
-        
-
-
-
+        virtual const float getMass() const;
 
 };

@@ -2,9 +2,10 @@
 //This is a project where I will be experimenting with opengl in order
 //to progress in an exploration of developing a physics engine
 
-#include <glad/glad.h>
+
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include <stb_image/stb_image.h>
 #include <random>
 
@@ -13,7 +14,7 @@
 #include <vector>
 #include <chrono>
 
-#include <glad/glad.h>
+
 
 #include "Shader.h"
 #include "Callbacks.h"
@@ -23,6 +24,8 @@
 #include "Renderer.h"
 #include "Object.h"
 #include "Force.h"
+#include "Pendulum.h"
+
 
 #define USE_GPU_ENGINE 0
 
@@ -52,11 +55,11 @@ extern "C"
 }
 
 //here is where we get all of the user input
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	
+
 }
 
 
@@ -67,9 +70,9 @@ bool checkCollisionDetection(const Object& circle1, const Object& circle2) {
 	//lets get the position of each circle
 	const float* pos1 = circle1.getPosition();
 	const float* pos2 = circle2.getPosition();
-	
-		float mass1 = circle1.getMass();
-		float mass2 = circle2.getMass();
+
+	float mass1 = circle1.getMass();
+	float mass2 = circle2.getMass();
 
 
 	//lets get the radius of each circle
@@ -91,7 +94,7 @@ bool checkCollisionDetection(const Object& circle1, const Object& circle2) {
 	return distanceSquared <= radiSumSquared;
 }
 
-void HandleCollision( Object& circle1,  Object& circle2) {
+void HandleCollision(Object& circle1, Object& circle2) {
 
 	//lets get the position of each circle
 	const float* pos1 = circle1.getPosition();
@@ -111,7 +114,7 @@ void HandleCollision( Object& circle1,  Object& circle2) {
 	// Calculate the distance between the circles
 	float distance = std::sqrt(dx * dx + dy * dy);
 	float overlap = (rad1 + rad2) - distance;
-	
+
 
 
 	// If there is an overlap, resolve it
@@ -149,21 +152,21 @@ void HandleCollision( Object& circle1,  Object& circle2) {
 int main(void)
 {
 	glfwSetErrorCallback(glfw_Error_Callback);
-	if (!glfwInit()) {return -1;}
-		
+	if (!glfwInit()) { return -1; }
+
 #pragma region report opengl errors to std
 	//this code enables GLFW debugging
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #pragma endregion
 
 
-	GLFWwindow *window = window = glfwCreateWindow(640, 640, "Sim_Window", NULL, NULL);
-	if (!window){glfwTerminate();return -1;}
-	
+	GLFWwindow* window = window = glfwCreateWindow(640, 640, "Sim_Window", NULL, NULL);
+	if (!window) { glfwTerminate(); return -1; }
+
 	glfwSetKeyCallback(window, key_callback);
 	glfwMakeContextCurrent(window);
 
-	
+
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glClearColor(.0, .3, .6, 0);
 	glfwSwapInterval(1);
@@ -176,7 +179,7 @@ int main(void)
 	int loopCount = 0;
 
 	int numCirc = 1;
-	
+
 	float InitPos[3] = { 0.0f, 0.7f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
@@ -192,80 +195,61 @@ int main(void)
 
 	float TopInitPos[3] = { 0.0f, 0.8f, 0.0f };
 	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
+
 	
-	std::vector<Object> GameObjects;
-	
-	
+
+
 	Renderer Renderer;
 	Force forces;
 
 
-	//texture
+	/*texture
 
-	//int Textwidth, Textheight, TextChannels;
-	//unsigned char* image_data = stbi_load("wood.png", &Textwidth, &Textheight, &TextChannels, STBI_rgb);
+	int Textwidth, Textheight, TextChannels;
+	unsigned char* image_data = stbi_load("wood.png", &Textwidth, &Textheight, &TextChannels, STBI_rgb);
 
-	//GLuint texture;
-	//glGenTextures(1, &texture);
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
-	////scaling
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	scaling
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	////repeating
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	repeating
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Textwidth, Textheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-	//glGenerateMipmap(GL_TEXTURE_2D);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Textwidth, Textheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 
-	//stbi_image_free(image_data);
-	//glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(image_data);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
 
-	
-	//
-
-	Object Top(TopInitPos, TopInitVel);
 
 	
+
+	//Object Top(TopInitPos, TopInitVel);
+
+
 	// Define circle1 outside the callback and then capture it properly in the lambda.
-	
+	std::vector<Pendulum> GameObjects;
 
-	//circle 1 def
-	Object circle1(InitPos, InitVel);
-	circle1.setRad(0.1f);
-	GameObjects.push_back(circle1);
+	//pendulum 1
+	float length = 1.0f;
+	float angle = 0.5f;
 
+	Pendulum Pendulum1(InitPos, InitVel, length,angle);
+	Pendulum1.setRad(0.1f);
+	GameObjects.push_back(Pendulum1);
 
-	//circle 2 def
-	Object circle2(circle2IinitPos, InitVel);
-	circle2.setRad(0.1f);
-	GameObjects.push_back(circle2);
-
-
-	//circle 3 def
-	Object circle3(circle3IinitPos, InitVel);
-	circle3.setRad(0.1f);
-	GameObjects.push_back(circle3);
-
-	//circle 4 def
-	Object circle4(circle4IinitPos, InitVel);
-	circle4.setRad(0.1f);
-	GameObjects.push_back(circle4);
-
-	//circle 5 def
-	Object circle5(circle5IinitPos, InitVel);
-	circle5.setRad(0.1f);
-	GameObjects.push_back(circle5);
-
-	Object rectangle(TopInitPos, TopInitVel);
+	//Object rectangle(TopInitPos, TopInitVel);
 
 	// Set the user pointer to point to the correct object
-	glfwSetWindowUserPointer(window, &circle1);
-	
+	glfwSetWindowUserPointer(window, &Pendulum1);
+
 
 
 	// Set the mouse button callback
@@ -274,7 +258,7 @@ int main(void)
 
 	while (!glfwWindowShouldClose(window))
 	{
-		
+
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
@@ -291,47 +275,35 @@ int main(void)
 
 		int vertexOffset = 0;  // Track the current number of vertices
 
-		std::vector<Vertex> topMesh = Top.generateRectangleMesh();
-		std::vector<int>topElem = Top.generateRectangleElem(topMesh);
-
-		
-
-			std::vector<Vertex> TempMesh = GameObjects[0].generateCircleMesh();
-			std::vector<int> TempElem = GameObjects[0].generateCircleElem(TempMesh);
-			
+		/*std::vector<Vertex> topMesh = Top.generateRectangleMesh();
+		std::vector<int>topElem = Top.generateRectangleElem(topMesh);*/
 
 
-						// Concatenate vertices and elements from the current game object
-			for (int i = 0; i < GameObjects.size(); ++i) {
-				// Generate the mesh and elements for the current game object (circle)
-				std::vector<Vertex> TempMesh = GameObjects[i].generateCircleMesh();
-				std::vector<int> TempElem = GameObjects[i].generateCircleElem(TempMesh);
+		for (int i = 0; i < GameObjects.size(); ++i) {
 
-				// Debugging: Print current mesh and element counts for each game object
-				std::cout << "GameObject " << i << " Mesh Vertices Count: " << TempMesh.size() << std::endl;
-				std::cout << "GameObject " << i << " Elements Count: " << TempElem.size() << std::endl;
+			std::vector<Vertex> TempMesh = GameObjects[i].generateMesh();
+			std::vector<int> TempElem = GameObjects[i].generateElem(TempMesh);
 
-				// Concatenate the mesh of the current game object (circle) to the main mesh
-				mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
+			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
 
-				// Offset the element indices by the current vertexOffset
-				for (int& elemIndex : TempElem) {
-					elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
-				}
-
-				// Concatenate the element indices from the current game object to the main element list
-				elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-
-				// Update the vertexOffset for the next game object (circle)
-				vertexOffset += TempMesh.size(); // Increase the offset by the number of vertices in the current mesh
-			}
-			
-			for (int& elemIndex : topElem) {
-				elemIndex += vertexOffset;  // Offset to avoid index conflicts
+			// Offset the element indices by the current vertexOffset
+			for (int& elemIndex : TempElem) {
+				elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
 			}
 
-			mesh.insert(mesh.end(), topMesh.begin(), topMesh.end());
-			elem.insert(elem.end(), topElem.begin(), topElem.end());
+			// Concatenate the element indices from the current game object to the main element list
+			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
+
+			// Update the vertexOffset for the next game object (circle)
+			vertexOffset += TempMesh.size(); // Increase the offset by the number of vertices in the current mesh
+		}
+
+		//for (int& elemIndex : topElem) {
+		//	elemIndex += vertexOffset;  // Offset to avoid index conflicts
+		//}
+
+		//mesh.insert(mesh.end(), topMesh.begin(), topMesh.end());
+		//elem.insert(elem.end(), topElem.begin(), topElem.end());
 
 		if (currentTick - startTick >= 1) {		//game loop
 			startTick = currentTick;
@@ -343,7 +315,7 @@ int main(void)
 
 				const float* pos = GameObjects[i].getPosition();
 				const float* vel = GameObjects[i].getVelocity();
-				
+
 
 				float newPosition[3];
 
@@ -352,7 +324,7 @@ int main(void)
 				}
 
 				GameObjects[i].updatePosition(newPosition);
-		
+
 				forces.gravity(GameObjects[i]);
 
 				if (GameObjects[i].isColliding()) {
@@ -369,36 +341,37 @@ int main(void)
 					int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
 					if (leftMousePressed == GLFW_PRESS) {
-						
+
 						double mouseX, mouseY;
 						glfwGetCursorPos(window, &mouseX, &mouseY);
 
-						
+
 						float normMx = (2.0f * (float)mouseX) / (float)width - 1.0f;
 						float normMy = (2.0f * ((float)height - (float)mouseY)) / (float)height - 1.0f;
 
 						float newPos[3] = { normMx, normMy, 0.0f };  // Set z-coordinate as needed
 
-						
+
 						GameObjects[i].updatePosition(newPos);
 						GameObjects[i].updateVelocity(InitVel);
 					}
 
 				}
-				
+
 				// Update the cursor **after** checking all objects
 				if (isAnyDraggable) {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
-				} else {
+				}
+				else {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
-}
+				}
 
 				for (int j = i + 1; j < GameObjects.size(); j++) {
-					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {						
+					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {
 						HandleCollision(GameObjects[i], GameObjects[j]);
-					}					
-				}		
-			}			
+					}
+				}
+			}
 		}
 
 		uint32_t vao = Renderer.uploadMesh(mesh, elem);
