@@ -180,7 +180,7 @@ int main(void)
 
 	int numCirc = 1;
 
-	float InitPos[3] = { 0.0f, 0.7f, 0.0f };
+	float InitPos[3] = { 0.0f, 0.3f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
 
@@ -325,7 +325,7 @@ int main(void)
 
 				GameObjects[i].updatePosition(newPosition);
 
-				forces.gravity(GameObjects[i]);
+				//forces.gravity(GameObjects[i]);
 
 				if (GameObjects[i].isColliding()) {
 					GameObjects[i].handleWallCollision();
@@ -336,6 +336,8 @@ int main(void)
 				bool drag = isDraggable(window, GameObjects[i]);
 
 				if (drag) {
+
+					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
 					bool isAnyDraggable = true;  // At least one object is draggable
 
 					int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -357,14 +359,11 @@ int main(void)
 					}
 
 				}
-
-				// Update the cursor **after** checking all objects
-				if (isAnyDraggable) {
-					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
-				}
 				else {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
 				}
+
+				
 
 				for (int j = i + 1; j < GameObjects.size(); j++) {
 					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {
