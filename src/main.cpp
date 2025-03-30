@@ -177,12 +177,12 @@ int main(void)
 
 	
 
-	float InitPos[3] = { 0.0f, 0.3f, 0.0f };
+	float InitPos[3] = { 0.0f, 1.3f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
 	//pendulum 1
 	float length = 1.0f;
-	float angle = 10.0f;
+	float angle = 0.0f;
 	float Circ1Rad = 0.1f;
 
 	float circle2IinitPos[3] = { 0.2f,0.7f,0.0f };
