@@ -43,30 +43,12 @@ bool Object::isColliding() const {
 
 void Object::handleWallCollision() {
 
-    // Boundary values
-    const float error = 0.0f;
-    const float boundary = 1.0f-error;
-    const float damping = 0.75f;
+}
 
-    // Handle collision with the walls
-    if (Pos[0] > boundary-Rad) {
-        Pos[0] = boundary-Rad;          // Correct position
-        Vel[0] *= -damping;        // Reflect and dampen velocity
-    }
-    else if (Pos[0] < -boundary+Rad) {
-        Pos[0] = -boundary+Rad;         // Correct position
-        Vel[0] *= -damping;        // Reflect and dampen velocity
-    }
+float Object::getRad() {
 
-    else if (Pos[1] > boundary-Rad) {
-        Pos[1] = boundary-Rad;          // Correct position
-        Vel[1] *= -damping;        // Reflect and dampen velocity
-    }
-    else if (Pos[1] < -boundary+Rad) {
-        Pos[1] = -boundary+Rad;         // Correct position
-        Vel[1] *= -damping;        // Reflect and dampen velocity
-    }
-};
+    return 0;
+}
 
 const float* Object::getPosition() const {
     return Pos;
@@ -74,10 +56,6 @@ const float* Object::getPosition() const {
 
 const float* Object::getVelocity() const {
     return Vel;
-};
-
-const float Object::getRad() const {
-    return Rad;
 };
 
 const float Object::getMass() const {
@@ -88,39 +66,11 @@ const float Object::getMass() const {
 std::vector<Vertex> Object::generateMesh() {
     std::vector<Vertex> GeoMesh;
 
-    const float centerX = Pos[0];
-    const float centerY = Pos[1];
-    int Res = resolution;
-
-    for (int i = 0; i < Res; ++i) {
-        float theta = 2 * 6.0f * static_cast<float>(i) / Res;
-        float x = centerX + Rad * cos(theta);
-        float y = centerY + Rad * sin(theta);
-        float z = Pos[2];
-
-        GeoMesh.emplace_back(x, y, z);
-    }
-
     return GeoMesh;
 }
 
 std::vector<int> Object::generateElem(std::vector<Vertex> GeoMesh) {
     std::vector<int> GeoElem;
-
-    int centerIndex = 0;
-
-    for (int i = 1; i < GeoMesh.size() - 1; ++i) {
-        GeoElem.push_back(centerIndex);
-        GeoElem.push_back(i);
-        GeoElem.push_back(i + 1);
-    }
-
-
-    GeoElem.push_back(centerIndex);
-    GeoElem.push_back(GeoMesh.size() - 1);
-    GeoElem.push_back(1);
-
-
 
     return GeoElem;
 }

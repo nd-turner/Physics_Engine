@@ -16,9 +16,6 @@ class Object{
         float Vel[3];   //dx and dy
         int color[3] = { 48 ,159 ,232 };   //default rgb values
         int resolution = 100;     // default Resolution for generating mesh gen
-        float Rad = 0.1f;
-        float width = 1.5f;
-        float height = 0.1f;
         float Mass = 100;
 
     public:
@@ -32,22 +29,15 @@ class Object{
         virtual std::vector<Vertex> generateMesh();
         virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
 
-        //Logic
         void updatePosition(float pos[3]);
         void updateVelocity(float vel[3]);
 
-        void setRad(float rad) {
-            Rad = rad;
-        }
-
-        //collision handling
-        void handleWallCollision();
         bool isColliding() const;
+        virtual void handleWallCollision();
 
-        //return functions
         const float* getPosition() const;
         const float* getVelocity() const;
-        const float getRad() const;
+        virtual float getRad();
         const float getMass() const;
-
+        
 };

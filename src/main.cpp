@@ -65,7 +65,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 //implement simple collision detection based of the circlular nature of the object (will implement SAT for better performance down the road)
-bool checkCollisionDetection(const Object* circle1, const Object* circle2) {
+bool checkCollisionDetection( Object* circle1, Object* circle2) {
 
 	//lets get the position of each circle
 	const float* pos1 = circle1->getPosition();
@@ -175,14 +175,14 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
-	int numCirc = 1;
+	
 
 	float InitPos[3] = { 0.0f, 0.3f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
 	//pendulum 1
 	float length = 1.0f;
-	float angle = 0.5f;
+	float angle = 10.0f;
 	float Circ1Rad = 0.1f;
 
 	float circle2IinitPos[3] = { 0.2f,0.7f,0.0f };
@@ -224,6 +224,7 @@ int main(void)
 	std::vector<Object*> GameObjects;
 
 	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, angle, 0.1f);
+	Pendulum1->pivot(45.0f);
 	GameObjects.push_back(Pendulum1);
 
 	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);

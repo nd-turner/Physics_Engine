@@ -20,8 +20,8 @@ public:
 	std::vector<Vertex> generateMesh() override;
 	std::vector<int> generateElem(std::vector<Vertex> GeoMesh) override;
 
-
-
+	void handleWallCollision();
+	float getRad();
 
 
 };

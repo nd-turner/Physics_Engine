@@ -13,6 +13,36 @@ Particle::~Particle()
 
 }
 
+float Particle::getRad() {
+    return Rad;
+}
+
+void Particle::handleWallCollision() {
+
+    // Boundary values
+    const float error = 0.0f;
+    const float boundary = 1.0f - error;
+    const float damping = 0.75f;
+
+    // Handle collision with the walls
+    if (Pos[0] > boundary - Rad) {
+        Pos[0] = boundary - Rad;          // Correct position
+        Vel[0] *= -damping;        // Reflect and dampen velocity
+    }
+    else if (Pos[0] < -boundary + Rad) {
+        Pos[0] = -boundary + Rad;         // Correct position
+        Vel[0] *= -damping;        // Reflect and dampen velocity
+    }
+
+    else if (Pos[1] > boundary - Rad) {
+        Pos[1] = boundary - Rad;          // Correct position
+        Vel[1] *= -damping;        // Reflect and dampen velocity
+    }
+    else if (Pos[1] < -boundary + Rad) {
+        Pos[1] = -boundary + Rad;         // Correct position
+        Vel[1] *= -damping;        // Reflect and dampen velocity
+    }
+};
 std::vector<Vertex> Particle::generateMesh() {
     std::vector<Vertex> GeoMesh;
 
@@ -52,3 +82,5 @@ std::vector<int> Particle::generateElem(std::vector<Vertex> GeoMesh) {
 
     return GeoElem;
 }
+
+

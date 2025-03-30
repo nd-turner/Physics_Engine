@@ -8,14 +8,14 @@ class Box : public Object {
 private:
 
 	float height;
-	float length;
+	float width;
 
 	int resolution = 100;
 
 
 public:
 
-	Box(float InitPos[3], float InitVel[3], float height, float length);
+	Box(float InitPos[3], float InitVel[3], float height, float width);
 	~Box();
 
 	//rendering information

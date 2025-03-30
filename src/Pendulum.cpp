@@ -10,7 +10,13 @@ Pendulum::Pendulum(float InitPos[3], float InitVel[3], float length, float angle
     : Object(InitPos, InitVel), length(length), angle(angle),massRad(massRad),
     angularVelocity(0.0f), angularAcceleration(0.0f)
 {
-  
+
+    pivotX = InitPos[0];
+    pivotY = InitPos[1]; 
+    angle *= (3.14 / 180.0f);
+
+    Pos[0] = pivotX + length * sin(angle);
+    Pos[1] = pivotY - length * cos(angle);
 }
 
 
@@ -49,8 +55,8 @@ std::vector<Vertex> Pendulum::generateMesh() {
 
     for (int i = 0; i < resolution; ++i) {
         float theta = 2.0f * 3.14159f * static_cast<float>(i) / resolution;
-        float x = centerX + Rad * cos(theta);
-        float y = centerY - height / 2.0f + Rad * sin(theta);
+        float x = centerX + massRad * cos(theta);
+        float y = centerY - height / 2.0f + massRad * sin(theta);
         float z = centerZ;
 
         GeoMesh.emplace_back(Vertex{ x, y, z });
@@ -93,4 +99,8 @@ std::vector<int> Pendulum::generateElem(const std::vector<Vertex> GeoMesh) {
     }
 
     return GeoElem;
+}
+
+void Pendulum::pivot(float deltaAngle) {
+  
 }

@@ -4,8 +4,8 @@
 #include "Box.h"
 #include <vector>
 
-Box::Box(float InitPos[3], float InitVel[3], float height, float length)
-    : Object(InitPos, InitVel), height(height),length(length) {
+Box::Box(float InitPos[3], float InitVel[3], float height, float width)
+    : Object(InitPos, InitVel), height(height),width(width) {
 
 }
 

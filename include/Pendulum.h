@@ -15,6 +15,9 @@ class Pendulum : public Object {
 		float width = 0.05f;
 		float height = 1.0f;
 
+		float pivotX;
+		float pivotY;
+
 	public:
 
 		Pendulum(float InitPos[3], float InitVel[3], float length, float angle, float massRad);
@@ -23,6 +26,6 @@ class Pendulum : public Object {
 		//rendering information
 		std::vector<Vertex> generateMesh() override;
 		std::vector<int> generateElem(std::vector<Vertex> GeoMesh) override;
-
+		void pivot(float angle);
 
 };
