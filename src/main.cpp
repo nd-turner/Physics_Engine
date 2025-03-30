@@ -14,8 +14,6 @@
 #include <vector>
 #include <chrono>
 
-
-
 #include "Shader.h"
 #include "Callbacks.h"
 #include "Level.h"
@@ -195,8 +193,6 @@ int main(void)
 	float TopInitPos[3] = { 0.0f, 0.8f, 0.0f };
 	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
 
-	
-
 	/*texture
 
 	int Textwidth, Textheight, TextChannels;
@@ -222,8 +218,6 @@ int main(void)
 	stbi_image_free(image_data);
 	glBindTexture(GL_TEXTURE_2D, 0);*/
 
-
-
 	Renderer Renderer;
 	Force forces;
 
@@ -235,10 +229,7 @@ int main(void)
 	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);
 	GameObjects.push_back(top);
 
-	Particle* test = new Particle(circle2IinitPos, InitVel, 0.5f);
-	GameObjects.push_back(test);
-
-	glfwSetWindowUserPointer(window, &Pendulum1);
+	glfwSetWindowUserPointer(window, Pendulum1);
 
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
