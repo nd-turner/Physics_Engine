@@ -26,7 +26,7 @@ class Force {
 	public:
 
 		void genForce(Object& obj, float magnitude, float direction[3]);	//Apply generic force to an object
-		void gravity(Object& obj);	//Apply gravity to an object
+		void gravity(Object* obj);	//Apply gravity to an object
 		void normal(Object& obj);	//Apply normal force to an object
 
 

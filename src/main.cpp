@@ -25,6 +25,8 @@
 #include "Object.h"
 #include "Force.h"
 #include "Pendulum.h"
+#include "Box.h"
+#include "Particle.h"
 
 
 #define USE_GPU_ENGINE 0
@@ -65,19 +67,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 //implement simple collision detection based of the circlular nature of the object (will implement SAT for better performance down the road)
-bool checkCollisionDetection(const Object& circle1, const Object& circle2) {
+bool checkCollisionDetection(const Object* circle1, const Object* circle2) {
 
 	//lets get the position of each circle
-	const float* pos1 = circle1.getPosition();
-	const float* pos2 = circle2.getPosition();
+	const float* pos1 = circle1->getPosition();
+	const float* pos2 = circle2->getPosition();
 
-	float mass1 = circle1.getMass();
-	float mass2 = circle2.getMass();
+	float mass1 = circle1->getMass();
+	float mass2 = circle2->getMass();
 
 
 	//lets get the radius of each circle
-	float rad1 = circle1.getRad();
-	float rad2 = circle2.getRad();
+	float rad1 = circle1->getRad();
+	float rad2 = circle2->getRad();
 
 	//lets check if the sum of the radius's ^2 is smaller than the distance between the circles
 	float radiSumSquared = (rad1 + rad2) * (rad1 + rad2);
@@ -94,15 +96,15 @@ bool checkCollisionDetection(const Object& circle1, const Object& circle2) {
 	return distanceSquared <= radiSumSquared;
 }
 
-void HandleCollision(Object& circle1, Object& circle2) {
+void HandleCollision(Object* circle1, Object* circle2) {
 
 	//lets get the position of each circle
-	const float* pos1 = circle1.getPosition();
-	const float* pos2 = circle2.getPosition();
+	const float* pos1 = circle1->getPosition();
+	const float* pos2 = circle2->getPosition();
 
 	//lets get the radius of each circle
-	float rad1 = circle1.getRad();
-	float rad2 = circle2.getRad();
+	float rad1 = circle1->getRad();
+	float rad2 = circle2->getRad();
 
 	//lets check if the sum of the radius's ^2 is smaller than the distance between the circles
 	float radiSumSquared = (rad1 + rad2) * (rad1 + rad2);
@@ -128,26 +130,23 @@ void HandleCollision(Object& circle1, Object& circle2) {
 		float newPos1[3] = { pos1[0] - nx * halfOverlap, pos1[1] - ny * halfOverlap, 0.0f };
 		float newPos2[3] = { pos2[0] + nx * halfOverlap, pos2[1] + ny * halfOverlap, 0.0f };
 
-		circle1.updatePosition(newPos1);
-		circle2.updatePosition(newPos2);
+		circle1->updatePosition(newPos1);
+		circle2->updatePosition(newPos2);
 
 		// Calculate new velocities after collision
-		const float* vel1 = circle1.getVelocity();
-		const float* vel2 = circle2.getVelocity();
+		const float* vel1 = circle1->getVelocity();
+		const float* vel2 = circle2->getVelocity();
 
 		// Simple elastic collision response (reflecting velocities)
 		float newVel1[3] = { -vel1[0], -vel1[1], 0.0f }; // Reflect velocity for circle1
 		float newVel2[3] = { -vel2[0], -vel2[1], 0.0f }; // Reflect velocity for circle2
 
-		circle1.updateVelocity(newVel1);
-		circle2.updateVelocity(newVel2);
+		circle1->updateVelocity(newVel1);
+		circle2->updateVelocity(newVel2);
 	}
 
 
 }
-
-
-
 
 int main(void)
 {
@@ -183,7 +182,9 @@ int main(void)
 	float InitPos[3] = { 0.0f, 0.3f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
-
+	//pendulum 1
+	float length = 1.0f;
+	float angle = 0.5f;
 	float Circ1Rad = 0.1f;
 
 	float circle2IinitPos[3] = { 0.2f,0.7f,0.0f };
@@ -191,17 +192,10 @@ int main(void)
 	float circle4IinitPos[3] = { 0.6f,0.7f,0.0f };
 	float circle5IinitPos[3] = { 0.8f,0.7f,0.0f };
 
-
-
 	float TopInitPos[3] = { 0.0f, 0.8f, 0.0f };
 	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
 
 	
-
-
-	Renderer Renderer;
-	Force forces;
-
 
 	/*texture
 
@@ -229,30 +223,23 @@ int main(void)
 	glBindTexture(GL_TEXTURE_2D, 0);*/
 
 
-	
 
-	//Object Top(TopInitPos, TopInitVel);
+	Renderer Renderer;
+	Force forces;
 
+	std::vector<Object*> GameObjects;
 
-	// Define circle1 outside the callback and then capture it properly in the lambda.
-	std::vector<Pendulum> GameObjects;
-
-	//pendulum 1
-	float length = 1.0f;
-	float angle = 0.5f;
-
-	Pendulum Pendulum1(InitPos, InitVel, length,angle);
-	Pendulum1.setRad(0.1f);
+	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, angle, 0.1f);
 	GameObjects.push_back(Pendulum1);
 
-	//Object rectangle(TopInitPos, TopInitVel);
+	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);
+	GameObjects.push_back(top);
 
-	// Set the user pointer to point to the correct object
+	Particle* test = new Particle(circle2IinitPos, InitVel, 0.5f);
+	GameObjects.push_back(test);
+
 	glfwSetWindowUserPointer(window, &Pendulum1);
 
-
-
-	// Set the mouse button callback
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
@@ -269,43 +256,30 @@ int main(void)
 		int currentTick = tickMaster.getTicks();
 		float dt = static_cast<float>(tickMaster.getDt());
 
-		//mesh and elem matrix for the entire screen
 		std::vector<Vertex> mesh;
 		std::vector<int> elem;
 
-		int vertexOffset = 0;  // Track the current number of vertices
+		int vertexOffset = 0;
 
-		/*std::vector<Vertex> topMesh = Top.generateRectangleMesh();
-		std::vector<int>topElem = Top.generateRectangleElem(topMesh);*/
 
 
 		for (int i = 0; i < GameObjects.size(); ++i) {
 
-			std::vector<Vertex> TempMesh = GameObjects[i].generateMesh();
-			std::vector<int> TempElem = GameObjects[i].generateElem(TempMesh);
+			std::vector<Vertex> TempMesh = GameObjects[i]->generateMesh();
+			std::vector<int> TempElem = GameObjects[i]->generateElem(TempMesh);
 
 			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
 
-			// Offset the element indices by the current vertexOffset
 			for (int& elemIndex : TempElem) {
 				elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
 			}
 
-			// Concatenate the element indices from the current game object to the main element list
 			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
 
-			// Update the vertexOffset for the next game object (circle)
-			vertexOffset += TempMesh.size(); // Increase the offset by the number of vertices in the current mesh
+			vertexOffset += TempMesh.size(); 
 		}
 
-		//for (int& elemIndex : topElem) {
-		//	elemIndex += vertexOffset;  // Offset to avoid index conflicts
-		//}
-
-		//mesh.insert(mesh.end(), topMesh.begin(), topMesh.end());
-		//elem.insert(elem.end(), topElem.begin(), topElem.end());
-
-		if (currentTick - startTick >= 1) {		//game loop
+		if (currentTick - startTick >= 1) {	//game loop
 			startTick = currentTick;
 			loopCount++;
 
@@ -313,9 +287,8 @@ int main(void)
 			for (int i = 0; i < GameObjects.size(); i++) {
 				bool isAnyDraggable = false;
 
-				const float* pos = GameObjects[i].getPosition();
-				const float* vel = GameObjects[i].getVelocity();
-
+				const float* pos = GameObjects[i]->getPosition();
+				const float* vel = GameObjects[i]->getVelocity();
 
 				float newPosition[3];
 
@@ -323,22 +296,21 @@ int main(void)
 					newPosition[j] = pos[j] + vel[j] * dt;
 				}
 
-				GameObjects[i].updatePosition(newPosition);
+				GameObjects[i]->updatePosition(newPosition);
 
 				//forces.gravity(GameObjects[i]);
 
-				if (GameObjects[i].isColliding()) {
-					GameObjects[i].handleWallCollision();
+				if (GameObjects[i]->isColliding()) {
+					GameObjects[i]->handleWallCollision();
 
 				}
 
-				//this checks if an object is draggable
 				bool drag = isDraggable(window, GameObjects[i]);
 
 				if (drag) {
 
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
-					bool isAnyDraggable = true;  // At least one object is draggable
+					
 
 					int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
@@ -354,16 +326,14 @@ int main(void)
 						float newPos[3] = { normMx, normMy, 0.0f };  // Set z-coordinate as needed
 
 
-						GameObjects[i].updatePosition(newPos);
-						GameObjects[i].updateVelocity(InitVel);
+						GameObjects[i]->updatePosition(newPos);
+						GameObjects[i]->updateVelocity(InitVel);
 					}
 
 				}
 				else {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
 				}
-
-				
 
 				for (int j = i + 1; j < GameObjects.size(); j++) {
 					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {

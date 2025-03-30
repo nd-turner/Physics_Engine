@@ -13,7 +13,7 @@ static void glfw_Error_Callback(int error, const char* description) {
 	throw("glfw_Error");
 }
 
-extern bool isDraggable(GLFWwindow* window, Object& obj) {
+extern bool isDraggable(GLFWwindow* window, Object* obj) {
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);  // Get window size
 
@@ -25,8 +25,8 @@ extern bool isDraggable(GLFWwindow* window, Object& obj) {
 	float normMy = (2.0f * (height - Mypos)) / height - 1.0f;
 
 
-	float rad = obj.getRad();  // Get object radius
-	const float* pos = obj.getPosition();  // Get object position in OpenGL space
+	float rad = obj->getRad();  // Get object radius
+	const float* pos = obj->getPosition();  // Get object position in OpenGL space
 	float Oxpos = pos[0], Oypos = pos[1];
 
 	// Compute Euclidean distance in OpenGL coordinates
@@ -34,7 +34,7 @@ extern bool isDraggable(GLFWwindow* window, Object& obj) {
 		(Oypos - normMy) * (Oypos - normMy));
 
 	// Check if distance is within the radius
-	obj.Drag = (distance < rad*1.25);
+	obj->Drag = (distance < rad*1.25);
 
 	//glfwSetCursor(window, handCursor);
 	/*std::cout << "Mouse Pos: " << normMx << ", " << normMy << "\n";
@@ -42,7 +42,7 @@ extern bool isDraggable(GLFWwindow* window, Object& obj) {
 	std::cout << "Distance: " << distance << " Radius: " << rad << "\n";*/
 
 
-	return obj.Drag;
+	return obj->Drag;
 }
 
 void dragObj(GLFWwindow* window, Object& obj) {

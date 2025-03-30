@@ -16,7 +16,7 @@ class Object{
         float Vel[3];   //dx and dy
         int color[3] = { 48 ,159 ,232 };   //default rgb values
         int resolution = 100;     // default Resolution for generating mesh gen
-        float Rad =0.5f;
+        float Rad = 0.1f;
         float width = 1.5f;
         float height = 0.1f;
         float Mass = 100;
@@ -28,11 +28,6 @@ class Object{
         Object(float InitPos[3], float InitVel[3]);
         virtual ~Object() {}
 
-        //2d mesh geometry stuff
-        std::vector<Vertex> generateCircleMesh();
-        std::vector<int> generateCircleElem(std::vector<Vertex> GeoMesh);
-        std::vector<Vertex> generateRectangleMesh();
-        std::vector<int> generateRectangleElem(std::vector<Vertex> GeoMesh);
 
         virtual std::vector<Vertex> generateMesh();
         virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
@@ -46,13 +41,13 @@ class Object{
         }
 
         //collision handling
-        virtual void handleWallCollision();
-        virtual bool isColliding() const;
+        void handleWallCollision();
+        bool isColliding() const;
 
         //return functions
-        virtual const float* getPosition() const;
-        virtual const float* getVelocity() const;
+        const float* getPosition() const;
+        const float* getVelocity() const;
         const float getRad() const;
-        virtual const float getMass() const;
+        const float getMass() const;
 
 };
