@@ -4,7 +4,9 @@
 #include "Pendulum.h"
 #include <vector>
 
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Pendulum::Pendulum(float InitPos[3], float InitVel[3], float length, float angle, float massRad)
     : Object(InitPos, InitVel), length(length), angle(angle),massRad(massRad),
@@ -101,6 +103,17 @@ std::vector<int> Pendulum::generateElem(const std::vector<Vertex> GeoMesh) {
     return GeoElem;
 }
 
-void Pendulum::pivot(float deltaAngle) {
-  
+glm::mat4 Pendulum::getModelMatrix() {
+    return modelMatrix;
 }
+
+void Pendulum::pivot(float deltaAngle) {
+    angle += deltaAngle;
+    if (angle >= 360.0f) angle -= 360.0f; // Keep angle within bounds
+
+    modelMatrix = glm::mat4(1.0f);  // Start fresh
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(pivotX, pivotY, 0.0f));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(-pivotX, -pivotY, 0.0f));
+}
+

@@ -14,7 +14,7 @@ class Object{
 
         float Pos[3];   //x y z will get passed to vertices for rendering
         float Vel[3];   //dx and dy
-        int color[3] = { 48 ,159 ,232 };   //default rgb values
+        float color[3] = { 48 ,159 ,232};   //default rgb values
         int resolution = 100;     // default Resolution for generating mesh gen
         float Mass = 100;
 
@@ -39,5 +39,6 @@ class Object{
         const float* getVelocity() const;
         virtual float getRad();
         const float getMass() const;
+        const float* getColor() const;
         
 };

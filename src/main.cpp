@@ -1,13 +1,12 @@
 
-//This is a project where I will be experimenting with opengl in order
-//to progress in an exploration of developing a physics engine
-
-
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <stb_image/stb_image.h>
 #include <random>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -25,7 +24,6 @@
 #include "Pendulum.h"
 #include "Box.h"
 #include "Particle.h"
-
 
 #define USE_GPU_ENGINE 0
 
@@ -171,7 +169,8 @@ int main(void)
 	Shader s;
 	s.loadShaderProgramFromFile(RESOURCES_PATH "vertex.vert", RESOURCES_PATH "fragment.frag");
 	s.bind();
-
+	s.setUniform4f("uColor", 0.5f, 0.5f, 0.5f, 1.0f);
+	
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
@@ -180,15 +179,10 @@ int main(void)
 	float InitPos[3] = { 0.0f, 1.3f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
-	//pendulum 1
 	float length = 1.0f;
-	float angle = 0.0f;
+	float angle = 15.0f;
 	float Circ1Rad = 0.1f;
-
-	float circle2IinitPos[3] = { 0.2f,0.7f,0.0f };
-	float circle3IinitPos[3] = { 0.4f,0.7f,0.0f };
-	float circle4IinitPos[3] = { 0.6f,0.7f,0.0f };
-	float circle5IinitPos[3] = { 0.8f,0.7f,0.0f };
+	
 
 	float TopInitPos[3] = { 0.0f, 0.8f, 0.0f };
 	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
@@ -223,8 +217,7 @@ int main(void)
 
 	std::vector<Object*> GameObjects;
 
-	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, angle, 0.1f);
-	Pendulum1->pivot(45.0f);
+	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, 0, 0.1f);
 	GameObjects.push_back(Pendulum1);
 
 	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);
@@ -235,6 +228,15 @@ int main(void)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
+
+	/*Pendulum1->pivot(angle);
+
+	glm::mat4 model = Pendulum1->getModelMatrix();
+
+	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));*/
+
+	//GLuint modelLoc = glGetUniformLocation(vertex.vert, "model");
+	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	while (!glfwWindowShouldClose(window))
 	{
 

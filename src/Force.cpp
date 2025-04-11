@@ -13,7 +13,7 @@ void normal(Object& obj);	//Apply normal force to an object
 
 //apply a generic force to an object
 void Force::genForce(Object& obj, float magnitude, float direction[3]) {
-
+    
 };
 
 //apply gravity to an object

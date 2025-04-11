@@ -3,6 +3,9 @@
 #include "Object.h"
 #include <cmath>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 class Pendulum : public Object {
 
 	private:
@@ -17,6 +20,7 @@ class Pendulum : public Object {
 
 		float pivotX;
 		float pivotY;
+		glm::mat4 modelMatrix;
 
 	public:
 
@@ -26,6 +30,8 @@ class Pendulum : public Object {
 		//rendering information
 		std::vector<Vertex> generateMesh() override;
 		std::vector<int> generateElem(std::vector<Vertex> GeoMesh) override;
+
 		void pivot(float angle);
+		glm::mat4 getModelMatrix();
 
 };

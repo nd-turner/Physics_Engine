@@ -62,6 +62,9 @@ const float Object::getMass() const {
 
     return Mass;
 };
+const float* Object::getColor() const {
+    return color;
+}
 
 std::vector<Vertex> Object::generateMesh() {
     std::vector<Vertex> GeoMesh;
