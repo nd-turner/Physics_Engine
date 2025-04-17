@@ -23,6 +23,7 @@ class Shader
 
 		GLint getUniform(const char *name);
 		GLint getUniform(GLuint shaderId, const char* name);
+
 		void setUniform1f(const char* name, float v);
 		void setUniform4f(const char* name, float x, float y, float z, float w);
 		void setUniform4f(const char* name, const glm::vec4& vec);

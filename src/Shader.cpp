@@ -64,12 +64,6 @@ GLint createShaderFromFile(const char *name, GLenum shaderType)
 	str.reserve(f.tellg());
 	f.seekg(0, std::ios::beg);
 
-	if (str.capacity() <= 0) 
-	{
-		std::cout << "Error opening file: " + std::string(name) << "\n";
-		return 0; 
-	}
-
 	str.assign((std::istreambuf_iterator<char>(f)),
 		std::istreambuf_iterator<char>());
 

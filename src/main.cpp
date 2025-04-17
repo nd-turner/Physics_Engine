@@ -228,7 +228,6 @@ int main(void)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-
 	/*Pendulum1->pivot(angle);
 
 	glm::mat4 model = Pendulum1->getModelMatrix();
@@ -254,8 +253,6 @@ int main(void)
 		std::vector<int> elem;
 
 		int vertexOffset = 0;
-
-
 
 		for (int i = 0; i < GameObjects.size(); ++i) {
 
@@ -337,7 +334,7 @@ int main(void)
 			}
 		}
 
-		uint32_t vao = Renderer.uploadMesh(mesh, elem);
+		MeshData vao = Renderer.uploadMesh(mesh, elem);
 		Renderer.drawMesh(vao, elem.size());
 		Renderer.unloadMesh(vao);
 

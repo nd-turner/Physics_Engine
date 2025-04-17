@@ -1,10 +1,10 @@
 #version 330 core
 
-layout (location = 0) out vec4 color;  // Output color at location 0
+layout (location = 0) out vec4 color;
 
-uniform vec4 uColor;                   // Uniform color passed from C++
+uniform vec4 uColor;
 
 void main()
 {
-    color = uColor;    // Set the output color to the uniform color
+    color = uColor;
 }

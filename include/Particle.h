@@ -16,7 +16,6 @@ public:
 	Particle(float InitPos[3], float InitVel[3], float Rad);
 	~Particle();
 
-	//rendering information
 	std::vector<Vertex> generateMesh() override;
 	std::vector<int> generateElem(std::vector<Vertex> GeoMesh) override;
 

@@ -5,45 +5,40 @@
 Renderer::Renderer() {}
 Renderer::~Renderer() {}
 
-uint32_t Renderer::uploadMesh(std::vector <Vertex>& mesh, std::vector<int> elem) {
+MeshData Renderer::uploadMesh(std::vector<Vertex>& mesh, std::vector<int> elem) {
+    MeshData data;
 
-	uint32_t VAO, VBO, EBO;
+    glGenVertexArrays(1, &data.VAO);
+    glBindVertexArray(data.VAO);
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+    glGenBuffers(1, &data.VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, data.VBO);
+    glBufferData(GL_ARRAY_BUFFER, mesh.size() * sizeof(Vertex), mesh.data(), GL_STATIC_DRAW);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, mesh.size() * sizeof(Vertex), mesh.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Pos));
-	glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Pos));
+    glEnableVertexAttribArray(0);
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elem.size() * sizeof(uint32_t), elem.data(), GL_STATIC_DRAW);
+    glGenBuffers(1, &data.EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elem.size() * sizeof(uint32_t), elem.data(), GL_STATIC_DRAW);
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-
-	return VAO;
-
+    return data;
 }
 
-void Renderer::unloadMesh(uint32_t VAO) {
+void Renderer::unloadMesh(MeshData& mesh) {
 
-	glDeleteVertexArrays(1, &VAO);
+    
+        glDeleteVertexArrays(1, &mesh.VAO);
+        glDeleteBuffers(1, &mesh.VBO);
+        glDeleteBuffers(1, &mesh.EBO);
+    
 }
 
-void Renderer::drawMesh(uint32_t VAO, uint32_t numIndices) {
-	// Bind the provided VAO
-	glBindVertexArray(VAO);
-
-	// Draw the mesh using the number of indices
-	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-
-	// Unbind the VAO
-	glBindVertexArray(0);
+void Renderer::drawMesh(MeshData& mesh, uint32_t numIndices) {
+    glBindVertexArray(mesh.VAO);
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
