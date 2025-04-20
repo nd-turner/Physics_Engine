@@ -32,21 +32,6 @@
 
 static Timer tickMaster;
 
-// Function to generate a random float between min and max
-float generateRandomFloat(float min, float max) {
-	std::random_device rd;  // Obtain a random number from hardware
-	std::mt19937 gen(rd()); // Seed the generator
-	std::uniform_real_distribution<> dis(min, max); // Define the range
-
-	return dis(gen);
-}
-
-// Function to generate a random float array of size 3
-void generateRandomFloatArray(float arr[3], float min, float max) {
-	for (int i = 0; i < 3; ++i) {
-		arr[i] = generateRandomFloat(min, max);
-	}
-}
 
 extern "C"
 {
@@ -171,6 +156,12 @@ int main(void)
 	Shader s;
 	s.loadShaderProgramFromFile(RESOURCES_PATH "vertex.vert", RESOURCES_PATH "fragment.frag");
 	s.bind();
+	GLuint sID = s.getID();
+
+	glm::vec4 color = glm::vec4(0., 0., 0., 1);
+
+	s.getUniform(sID, "ourColor");
+	s.setUniform("ourColor", color);
 
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;

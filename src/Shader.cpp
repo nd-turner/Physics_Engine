@@ -3,7 +3,7 @@
 #include <Shader.h>
 #include <iostream>
 #include <fstream>
-
+#include <glm/gtc/type_ptr.hpp>
 //path is used for error reporting
 GLint createShaderFromData(const char *data, GLenum shaderType, const char *path = 0)
 {
@@ -301,9 +301,18 @@ GLint Shader::getUniform(GLuint shaderId, const char* name)
 	return uniform;
 }
 
-GLint Shader::getUniform(const char *name)
+GLint Shader::getUniform(const char* name)
 {
 	return getUniform(this->id, name);
 }
 
 
+GLint Shader::getID() {
+	return id;
+}
+
+void Shader::setUniform(const char* name, const glm::vec4& uniform) {
+
+	GLint location = glGetUniformLocation(id, name);
+	glUniform4fv(location, 1, glm::value_ptr(uniform));
+}

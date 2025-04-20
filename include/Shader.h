@@ -1,5 +1,7 @@
 #pragma once
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader
 {
@@ -18,8 +20,11 @@ class Shader
 		void bind();
 		void clear();
 
-		GLint getUniform(const char *name);
+		GLint getID();
+		GLint getUniform(const char* name);
 		GLint getUniform(GLuint shaderId, const char* name);
+
+		void setUniform(const char* name, const glm::vec4& value);
 };
 
 

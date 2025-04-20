@@ -12,7 +12,6 @@ private:
 
 	int resolution = 100;
 
-
 public:
 
 	Box(float InitPos[3], float InitVel[3], float height, float width);
