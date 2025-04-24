@@ -30,21 +30,6 @@
 
 static Timer tickMaster;
 
-// Function to generate a random float between min and max
-float generateRandomFloat(float min, float max) {
-	std::random_device rd;  // Obtain a random number from hardware
-	std::mt19937 gen(rd()); // Seed the generator
-	std::uniform_real_distribution<> dis(min, max); // Define the range
-
-	return dis(gen);
-}
-
-// Function to generate a random float array of size 3
-void generateRandomFloatArray(float arr[3], float min, float max) {
-	for (int i = 0; i < 3; ++i) {
-		arr[i] = generateRandomFloat(min, max);
-	}
-}
 
 extern "C"
 {
@@ -169,8 +154,21 @@ int main(void)
 	Shader s;
 	s.loadShaderProgramFromFile(RESOURCES_PATH "vertex.vert", RESOURCES_PATH "fragment.frag");
 	s.bind();
-	s.setUniform4f("uColor", 0.5f, 0.5f, 0.5f, 1.0f);
+	GLuint sID = s.getID();
+
+	glm::vec4 color = glm::vec4(1., 0., 0., 1);
+	glm::mat4 trans = glm::mat4(1.0);
+
+	float angle = glm::radians(45.0f);
 	
+	trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+	s.getUniform(sID, "ourColor");
+	s.setUniform("ourColor", color);
+
+	s.getUniform(sID, "transform");
+	s.setUniformMatrix("transform", trans);
+
+
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
@@ -180,7 +178,6 @@ int main(void)
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 
 	float length = 1.0f;
-	float angle = 15.0f;
 	float Circ1Rad = 0.1f;
 	
 

@@ -3,7 +3,8 @@
 #include <Shader.h>
 #include <iostream>
 #include <fstream>
-
+#include <glm/gtc/type_ptr.hpp>
+//path is used for error reporting
 GLint createShaderFromData(const char *data, GLenum shaderType, const char *path = 0)
 {
 	GLuint shaderId = glCreateShader(shaderType);
@@ -294,7 +295,7 @@ GLint Shader::getUniform(GLuint shaderId, const char* name)
 	return uniform;
 }
 
-GLint Shader::getUniform(const char *name)
+GLint Shader::getUniform(const char* name)
 {
 	return getUniform(this->id, name);
 }
@@ -316,10 +317,17 @@ void Shader::setUniformMatrix4fv(const char* name, const float* matrix) {
 	glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
 }
 
-void Shader::setUniform4f(const char* name, const glm::vec4& vec) {
-	setUniform4f(name, vec.x, vec.y, vec.z, vec.w);
+GLint Shader::getID() {
+	return id;
 }
 
-void Shader::setUniformMatrix4fv(const char* name, const glm::mat4& matrix) {
-	setUniformMatrix4fv(name, glm::value_ptr(matrix));
+void Shader::setUniform(const char* name, const glm::vec4& uniform) {
+
+	GLint location = glGetUniformLocation(id, name);
+	glUniform4fv(location, 1, glm::value_ptr(uniform));
+}
+
+void Shader::setUniformMatrix(const char* name, const glm::mat4& uniform) {
+	GLint location = glGetUniformLocation(id, name);
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(uniform));
 }
