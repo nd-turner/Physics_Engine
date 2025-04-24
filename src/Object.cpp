@@ -80,14 +80,14 @@ std::vector<int> Object::generateElem(std::vector<Vertex> GeoMesh) {
     return GeoElem;
 }
 
-void Object::draw(Shader& shader) {
-
-    //generate mesh and elem matrix
-
-    std::vector<Vertex> GeoMesh = generateMesh();   // Vertices of the object
-    std::vector<int> GeoElem = generateElem(GeoMesh); // Indices to define object geometry
-
-}
+//void Object::draw(Shader& shader) {
+//
+//    //generate mesh and elem matrix
+//
+//    std::vector<Vertex> GeoMesh = generateMesh();   // Vertices of the object
+//    std::vector<int> GeoElem = generateElem(GeoMesh); // Indices to define object geometry
+//
+//}
 
 
 

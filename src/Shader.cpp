@@ -300,22 +300,6 @@ GLint Shader::getUniform(const char* name)
 	return getUniform(this->id, name);
 }
 
-//set the uniform 1f in the shader to a given value
-void Shader::setUniform1f(const char *name, float v) {
-	GLint location = getUniform(name);
-	glUniform1f(location, v);
-}
-
-//set the uniform 4f in the shader to a given value
-void Shader::setUniform4f(const char* name, float x, float y, float z, float w) {
-	GLint location = getUniform(name);
-	glUniform4f(location, x,y,z,w);
-}
-
-void Shader::setUniformMatrix4fv(const char* name, const float* matrix) {
-	GLint location = getUniform(name);
-	glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
-}
 
 GLint Shader::getID() {
 	return id;

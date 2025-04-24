@@ -29,7 +29,7 @@ class Object{
 
         virtual std::vector<Vertex> generateMesh();
         virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
-        virtual void draw(Shader& shader);
+       // virtual void draw(Shader& shader);
 
         void updatePosition(float pos[3]);
         void updateVelocity(float vel[3]);
