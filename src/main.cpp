@@ -158,10 +158,18 @@ int main(void)
 	s.bind();
 	GLuint sID = s.getID();
 
-	glm::vec4 color = glm::vec4(0., 0., 0., 1);
+	glm::vec4 color = glm::vec4(1., 0., 0., 1);
+	glm::mat4 trans = glm::mat4(1.0);
 
+	float angle = glm::radians(45.0f);
+	
+	trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 1.0f));
 	s.getUniform(sID, "ourColor");
 	s.setUniform("ourColor", color);
+
+	s.getUniform(sID, "transform");
+	s.setUniformMatrix("transform", trans);
+
 
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
@@ -173,7 +181,6 @@ int main(void)
 
 	//pendulum 1
 	float length = 1.0f;
-	float angle = 0.0f;
 	float Circ1Rad = 0.1f;
 
 	float circle2IinitPos[3] = { 0.2f,0.7f,0.0f };

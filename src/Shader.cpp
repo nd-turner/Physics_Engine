@@ -316,3 +316,8 @@ void Shader::setUniform(const char* name, const glm::vec4& uniform) {
 	GLint location = glGetUniformLocation(id, name);
 	glUniform4fv(location, 1, glm::value_ptr(uniform));
 }
+
+void Shader::setUniformMatrix(const char* name, const glm::mat4& uniform) {
+	GLint location = glGetUniformLocation(id, name);
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(uniform));
+}

@@ -2,11 +2,13 @@
 
 layout (location = 0) in vec3 p;
 
-uniform float xOffset;
+uniform mat4 transform;
+
+
 
 void main()
 {
 	
-	gl_Position = vec4(p, 1);
+	gl_Position = transform * vec4(p, 1);
 
 }

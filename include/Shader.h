@@ -25,6 +25,7 @@ class Shader
 		GLint getUniform(GLuint shaderId, const char* name);
 
 		void setUniform(const char* name, const glm::vec4& value);
+		void setUniformMatrix(const char* name, const glm::mat4& value);
 };
 
 

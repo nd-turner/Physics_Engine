@@ -2,6 +2,7 @@
 
 #include "Vertex.h" 
 #include <vector>
+#include "Shader.h"
 
 //an Object is basically going to be the building block of the physics engine think of it as a physics entity
 //the idea is for object to basically be the parent class for a variety of shapes
@@ -28,6 +29,7 @@ class Object{
 
         virtual std::vector<Vertex> generateMesh();
         virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
+        virtual void draw(Shader& shader);
 
         void updatePosition(float pos[3]);
         void updateVelocity(float vel[3]);
