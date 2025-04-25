@@ -10,8 +10,7 @@
 class Object{
 
     protected:
-        std::vector<Vertex> vertices;  // Store vertices for the object
-        std::vector<int> elements;
+       
 
         float Pos[3];   //x y z will get passed to vertices for rendering
         float Vel[3];   //dx and dy
@@ -29,7 +28,7 @@ class Object{
 
         virtual std::vector<Vertex> generateMesh();
         virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
-       // virtual void draw(Shader& shader);
+        virtual void draw(Shader& shader);
 
         void updatePosition(float pos[3]);
         void updateVelocity(float vel[3]);

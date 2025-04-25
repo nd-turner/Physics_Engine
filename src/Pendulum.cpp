@@ -19,14 +19,21 @@ Pendulum::Pendulum(float InitPos[3], float InitVel[3], float length, float angle
 
     Pos[0] = pivotX + length * sin(angle);
     Pos[1] = pivotY - length * cos(angle);
+
+    this->vertices = generateMesh();
+    this->elements = generateElem(vertices);
+
 }
-
-
+    
 Pendulum::~Pendulum()
 {
    
 }
 
+void Pendulum::setRenderer(Renderer* r) {
+    
+    this->renderer = r;
+}
 
 std::vector<Vertex> Pendulum::generateMesh() {
     std::vector<Vertex> GeoMesh;
@@ -103,17 +110,25 @@ std::vector<int> Pendulum::generateElem(const std::vector<Vertex> GeoMesh) {
     return GeoElem;
 }
 
+void Pendulum::draw(Shader& shader) {
+
+    
+    if (meshData.VAO == 0) {
+        meshData = renderer->uploadMesh(vertices, elements);
+    }
+    
+    shader.bind();
+    shader.setUniformMatrix("transform", modelMatrix);
+
+    renderer->drawMesh(meshData, elements.size());
+
+}
+
 glm::mat4 Pendulum::getModelMatrix() {
     return modelMatrix;
 }
 
 void Pendulum::pivot(float deltaAngle) {
-    angle += deltaAngle;
-    if (angle >= 360.0f) angle -= 360.0f; // Keep angle within bounds
-
-    modelMatrix = glm::mat4(1.0f);  // Start fresh
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(pivotX, pivotY, 0.0f));
-    modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(-pivotX, -pivotY, 0.0f));
+    
 }
 
