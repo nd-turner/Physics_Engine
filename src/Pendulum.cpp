@@ -8,8 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Pendulum::Pendulum(float InitPos[3], float InitVel[3], float length, float angle, float massRad)
-    : Object(InitPos, InitVel), length(length), angle(angle),massRad(massRad),
+Pendulum::Pendulum(float InitPos[3], float InitVel[3], float length, float angle, float massRad) : Object(InitPos, InitVel), 
+    length(length), angle(angle),massRad(massRad),
     angularVelocity(0.0f), angularAcceleration(0.0f)
 {
 
@@ -129,6 +129,6 @@ glm::mat4 Pendulum::getModelMatrix() {
 }
 
 void Pendulum::pivot(float deltaAngle) {
-    
+    //directly edit the 
 }
 

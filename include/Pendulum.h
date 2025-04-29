@@ -13,10 +13,9 @@ class Pendulum : public Object {
 		MeshData meshData;
 		std::vector<Vertex> vertices;
 		std::vector<int> elements;
-		glm::mat4 modelMatrix = 1.0f;
+		glm::mat4 modelMatrix = glm::mat4(1.0);
 		Renderer* renderer;
 		int resolution = 100;
-
 
 		float length;
 		float angle;
@@ -38,7 +37,7 @@ class Pendulum : public Object {
 
 		std::vector<Vertex> generateMesh() override;
 		std::vector<int> generateElem(std::vector<Vertex> GeoMesh) override;
-		void setRenderer(Renderer* r);
+		void setRenderer(Renderer* r) override;
 		void draw(Shader& shader) override;
 
 		void pivot(float angle);

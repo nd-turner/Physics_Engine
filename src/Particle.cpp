@@ -3,13 +3,11 @@
 #include "Particle.h"
 #include <vector>
 
-Particle::Particle(float InitPos[3], float InitVel[3], float Rad)
-    : Object(InitPos, InitVel), Rad(Rad) { 
+Particle::Particle(float InitPos[3], float InitVel[3], float Rad) : Object(InitPos, InitVel), Rad(Rad) { 
 
 }
 
-Particle::~Particle()
-{
+Particle::~Particle() {
 
 }
 
@@ -18,32 +16,29 @@ float Particle::getRad() {
 }
 
 void Particle::handleWallCollision() {
-
-    // Boundary values
     const float error = 0.0f;
     const float boundary = 1.0f - error;
     const float damping = 0.75f;
 
-    // Handle collision with the walls
     if (Pos[0] > boundary - Rad) {
-        Pos[0] = boundary - Rad;          // Correct position
-        Vel[0] *= -damping;        // Reflect and dampen velocity
+        Pos[0] = boundary - Rad;
+        Vel[0] *= -damping;
     }
     else if (Pos[0] < -boundary + Rad) {
-        Pos[0] = -boundary + Rad;         // Correct position
-        Vel[0] *= -damping;        // Reflect and dampen velocity
+        Pos[0] = -boundary + Rad;
+        Vel[0] *= -damping;
     }
 
     else if (Pos[1] > boundary - Rad) {
-        Pos[1] = boundary - Rad;          // Correct position
-        Vel[1] *= -damping;        // Reflect and dampen velocity
+        Pos[1] = boundary - Rad;
+        Vel[1] *= -damping; 
     }
     else if (Pos[1] < -boundary + Rad) {
-        Pos[1] = -boundary + Rad;         // Correct position
-        Vel[1] *= -damping;        // Reflect and dampen velocity
+        Pos[1] = -boundary + Rad;      
+        Vel[1] *= -damping;       
     }
 };
-std::vector<Vertex> Particle::generateMesh() {
+std::vector<Vertex> Particle::generateMesh(){
     std::vector<Vertex> GeoMesh;
 
     const float centerX = Pos[0];

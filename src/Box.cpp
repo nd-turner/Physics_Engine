@@ -7,10 +7,17 @@
 Box::Box(float InitPos[3], float InitVel[3], float height, float width)
     : Object(InitPos, InitVel), height(height),width(width) {
 
+    this->vertices = generateMesh();
+    this->elements = generateElem(vertices);
 }
 
 Box::~Box(){
 
+}
+
+void Box::setRenderer(Renderer* r) {
+
+    this->renderer = r;
 }
 
 std::vector<Vertex> Box::generateMesh() {
@@ -62,4 +69,18 @@ std::vector<int> Box::generateElem(std::vector<Vertex> GeoMesh) {
     }
 
     return elements;
+}
+
+void Box::draw(Shader& shader) {
+
+
+    if (meshData.VAO == 0) {
+        meshData = renderer->uploadMesh(vertices, elements);
+    }
+
+    shader.bind();
+    shader.setUniformMatrix("transform", modelMatrix);
+
+    renderer->drawMesh(meshData, elements.size());
+
 }

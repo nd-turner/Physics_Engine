@@ -1,9 +1,7 @@
 
 #pragma once
 
-#include "Vertex.h" 
-#include <vector>
-#include "Shader.h"
+
 #include "Object.h"
 
 Object::Object(float InitPos[3], float InitVel[3]) {
@@ -13,6 +11,9 @@ Object::Object(float InitPos[3], float InitVel[3]) {
         this->Vel[i] = InitVel[i];  // Copy InitVel elements
     }
     
+
+    this->vertices = generateMesh();
+    this->elements = generateElem(vertices);
 };
 
 void Object::updatePosition(float pos[3]) {
@@ -80,13 +81,22 @@ std::vector<int> Object::generateElem(std::vector<Vertex> GeoMesh) {
     return GeoElem;
 }
 
+void Object::setRenderer(Renderer* r) {
+
+    this->renderer = r;
+}
+
 void Object::draw(Shader& shader) {
 
 
-    std::vector<Vertex> GeoMesh = generateMesh();   // Vertices of the object
-    std::vector<int> GeoElem = generateElem(GeoMesh); // Indices to define object geometry
+    if (meshData.VAO == 0) {
+        meshData = renderer->uploadMesh(vertices, elements);
+    }
+
+    shader.bind();
+    shader.setUniformMatrix("transform", modelMatrix);
+
+    renderer->drawMesh(meshData, elements.size());
 
 }
-
-
 
