@@ -159,9 +159,9 @@ int main(void)
 	glm::vec4 color = glm::vec4(1., 0., 0., 1);
 	glm::mat4 trans = glm::mat4(1.0);
 
-	float angle = glm::radians(45.0f);
+	float angle = glm::radians(1.0f);
 	
-	trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+	trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 0.0f));
 	s.getUniform(sID, "ourColor");
 	s.setUniform("ourColor", color);
 
@@ -215,9 +215,13 @@ int main(void)
 	std::vector<Object*> GameObjects;
 
 	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, 0, 0.1f);
+	Pendulum1->setRenderer(&Renderer);
 	GameObjects.push_back(Pendulum1);
 
+	Pendulum1->pivot(angle);
+
 	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);
+	top->setRenderer(&Renderer);
 	GameObjects.push_back(top);
 
 	glfwSetWindowUserPointer(window, Pendulum1);
@@ -246,26 +250,19 @@ int main(void)
 		int currentTick = tickMaster.getTicks();
 		float dt = static_cast<float>(tickMaster.getDt());
 
-		std::vector<Vertex> mesh;
-		std::vector<int> elem;
-
-		int vertexOffset = 0;
-
-		for (int i = 0; i < GameObjects.size(); ++i) {
-
-			std::vector<Vertex> TempMesh = GameObjects[i]->generateMesh();
-			std::vector<int> TempElem = GameObjects[i]->generateElem(TempMesh);
-
-			mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
-
-			for (int& elemIndex : TempElem) {
-				elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
-			}
-
-			elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-
-			vertexOffset += TempMesh.size(); 
-		}
+		//std::vector<Vertex> mesh;
+		//std::vector<int> elem;
+		//int vertexOffset = 0;
+		//for (int i = 0; i < GameObjects.size(); ++i) {
+		//	std::vector<Vertex> TempMesh = GameObjects[i]->generateMesh();
+		//	std::vector<int> TempElem = GameObjects[i]->generateElem(TempMesh);
+		//	mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
+		//	for (int& elemIndex : TempElem) {
+		//		elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
+		//	}
+		//	elem.insert(elem.end(), TempElem.begin(), TempElem.end());
+		//	vertexOffset += TempMesh.size(); 
+		//}
 
 		if (currentTick - startTick >= 1) {	//game loop
 			startTick = currentTick;
@@ -317,7 +314,6 @@ int main(void)
 						GameObjects[i]->updatePosition(newPos);
 						GameObjects[i]->updateVelocity(InitVel);
 					}
-
 				}
 				else {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
@@ -331,9 +327,9 @@ int main(void)
 			}
 		}
 
-		MeshData vao = Renderer.uploadMesh(mesh, elem);
-		Renderer.drawMesh(vao, elem.size());
-		Renderer.unloadMesh(vao);
+		for (auto& object : GameObjects) {
+			object->draw(s);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

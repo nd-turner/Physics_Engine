@@ -75,6 +75,7 @@ std::vector<Vertex> Pendulum::generateMesh() {
 }
 
 std::vector<int> Pendulum::generateElem(const std::vector<Vertex> GeoMesh) {
+
     std::vector<int> GeoElem;
     int baseStartIndex = resolution * resolution;
     int baseResolution = resolution;
@@ -125,10 +126,23 @@ void Pendulum::draw(Shader& shader) {
 }
 
 glm::mat4 Pendulum::getModelMatrix() {
+
     return modelMatrix;
 }
 
 void Pendulum::pivot(float deltaAngle) {
-    //directly edit the 
+    glm::vec3 pivotPoint = glm::vec3(pivotX, pivotY, 0.0f);
+
+    // Move pivot point to origin
+    glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), -pivotPoint);
+
+    // Rotate
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), deltaAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Move back from origin
+    glm::mat4 translateBack = glm::translate(glm::mat4(1.0f), pivotPoint);
+
+    // Apply the full transformation
+    modelMatrix = translateBack * rotation * translateToOrigin * modelMatrix;
 }
 

@@ -7,8 +7,8 @@
 Object::Object(float InitPos[3], float InitVel[3]) {
     
     for (int i = 0; i < 3; ++i) {
-        this->Pos[i] = InitPos[i];  // Copy InitPos elements
-        this->Vel[i] = InitVel[i];  // Copy InitVel elements
+        this->Pos[i] = InitPos[i];
+        this->Vel[i] = InitVel[i];
     }
     
 
