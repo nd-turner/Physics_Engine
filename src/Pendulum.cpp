@@ -146,3 +146,19 @@ void Pendulum::pivot(float deltaAngle) {
     modelMatrix = translateBack * rotation * translateToOrigin * modelMatrix;
 }
 
+void Pendulum::update(float dt) {
+
+    angularAcceleration = -(9.81f / length) * sin(angle);
+    angularVelocity += angularAcceleration * dt;
+    angle += angularVelocity * dt;
+    angularVelocity *= 0.99f;
+
+    // Visual update using delta angle
+    float deltaAngle = angle - previousAngle;
+    pivot(deltaAngle);
+
+    previousAngle = angle;  // Save for next frame
+    
+   
+
+}

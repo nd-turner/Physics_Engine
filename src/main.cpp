@@ -156,7 +156,7 @@ int main(void)
 	s.bind();
 	GLuint sID = s.getID();
 
-	glm::vec4 color = glm::vec4(1., 0., 0., 1);
+	glm::vec4 color = glm::vec4(1., 1., 1., 1);
 	glm::mat4 trans = glm::mat4(1.0);
 
 	float angle = glm::radians(1.0f);
@@ -282,8 +282,8 @@ int main(void)
 				}
 
 				GameObjects[i]->updatePosition(newPosition);
-
-				//forces.gravity(GameObjects[i]);
+				Pendulum1->update(dt);
+				
 
 				if (GameObjects[i]->isColliding()) {
 					GameObjects[i]->handleWallCollision();
@@ -304,12 +304,9 @@ int main(void)
 						double mouseX, mouseY;
 						glfwGetCursorPos(window, &mouseX, &mouseY);
 
-
 						float normMx = (2.0f * (float)mouseX) / (float)width - 1.0f;
 						float normMy = (2.0f * ((float)height - (float)mouseY)) / (float)height - 1.0f;
-
-						float newPos[3] = { normMx, normMy, 0.0f };  // Set z-coordinate as needed
-
+						float newPos[3] = { normMx, normMy, 0.0f };
 
 						GameObjects[i]->updatePosition(newPos);
 						GameObjects[i]->updateVelocity(InitVel);
@@ -334,6 +331,5 @@ int main(void)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-	//glDeleteTextures(1, &texture);
 }
 
