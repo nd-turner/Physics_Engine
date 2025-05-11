@@ -128,6 +128,19 @@ void HandleCollision(Object* circle1, Object* circle2) {
 
 
 }
+void swing(Pendulum& Pendulum1) {
+	static float time = 0.0f;       // keeps track of time between frames
+	float amplitude = 90;        // max angle in degrees
+	float frequency = 1.0f;         // swing frequency in Hz
+	float damper = .5;
+
+	time += tickMaster.getDt() * .25; // approximate frame time (60 FPS); replace with actual dt if available
+
+	
+	float angle = amplitude * damper * std::sin(2 * 3.14159f * frequency * time) ;
+	Pendulum1.setAngle(angle);      // angle in degrees, assuming setAngle converts to radians
+}
+
 
 int main(void)
 {
@@ -159,7 +172,7 @@ int main(void)
 	glm::vec4 color = glm::vec4(1., 1., 1., 1);
 	glm::mat4 trans = glm::mat4(1.0);
 
-	float angle = glm::radians(1.0f);
+	float angle = 180.0f;
 	
 	trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 0.0f));
 	s.getUniform(sID, "ourColor");
@@ -217,8 +230,8 @@ int main(void)
 	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, 0, 0.1f);
 	Pendulum1->setRenderer(&Renderer);
 	GameObjects.push_back(Pendulum1);
-
-	Pendulum1->pivot(angle);
+	
+	Pendulum1->setAngle(angle);
 
 	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);
 	top->setRenderer(&Renderer);
@@ -237,6 +250,8 @@ int main(void)
 
 	//GLuint modelLoc = glGetUniformLocation(vertex.vert, "model");
 	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -250,25 +265,11 @@ int main(void)
 		int currentTick = tickMaster.getTicks();
 		float dt = static_cast<float>(tickMaster.getDt());
 
-		//std::vector<Vertex> mesh;
-		//std::vector<int> elem;
-		//int vertexOffset = 0;
-		//for (int i = 0; i < GameObjects.size(); ++i) {
-		//	std::vector<Vertex> TempMesh = GameObjects[i]->generateMesh();
-		//	std::vector<int> TempElem = GameObjects[i]->generateElem(TempMesh);
-		//	mesh.insert(mesh.end(), TempMesh.begin(), TempMesh.end());
-		//	for (int& elemIndex : TempElem) {
-		//		elemIndex += vertexOffset;  // Offset the indices to avoid conflicts
-		//	}
-		//	elem.insert(elem.end(), TempElem.begin(), TempElem.end());
-		//	vertexOffset += TempMesh.size(); 
-		//}
 
-		if (currentTick - startTick >= 1) {	//game loop
+		if (currentTick - startTick >= 1) {
 			startTick = currentTick;
 			loopCount++;
 
-			//go through all game objects
 			for (int i = 0; i < GameObjects.size(); i++) {
 				bool isAnyDraggable = false;
 
@@ -282,7 +283,9 @@ int main(void)
 				}
 
 				GameObjects[i]->updatePosition(newPosition);
-				Pendulum1->update(dt);
+				swing(*Pendulum1);
+				Pendulum1->update();
+				
 				
 
 				if (GameObjects[i]->isColliding()) {

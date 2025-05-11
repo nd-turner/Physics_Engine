@@ -18,7 +18,7 @@ class Pendulum : public Object {
 		int resolution = 100;
 
 		float length;
-		float angle;
+		float angle = 0.0f;
 		float angularVelocity;
 		float angularAcceleration;
 		float massRad = 0.15f;
@@ -41,8 +41,11 @@ class Pendulum : public Object {
 		void setRenderer(Renderer* r) override;
 		void draw(Shader& shader) override;
 
-		void pivot(float angle);
-		void update(float dt);
+		float getAngle();
+		void setAngle(float angleInDegrees);
+		void pivot ();
+		void swing(float angleRangeInDegrees);
+		void update();
 		glm::mat4 getModelMatrix();
 
 };

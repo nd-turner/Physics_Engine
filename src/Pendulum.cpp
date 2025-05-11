@@ -130,35 +130,37 @@ glm::mat4 Pendulum::getModelMatrix() {
     return modelMatrix;
 }
 
-void Pendulum::pivot(float deltaAngle) {
-    glm::vec3 pivotPoint = glm::vec3(pivotX, pivotY, 0.0f);
+float Pendulum::getAngle() {
 
-    // Move pivot point to origin
-    glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), -pivotPoint);
-
-    // Rotate
-    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), deltaAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // Move back from origin
-    glm::mat4 translateBack = glm::translate(glm::mat4(1.0f), pivotPoint);
-
-    // Apply the full transformation
-    modelMatrix = translateBack * rotation * translateToOrigin * modelMatrix;
+    return angle;
 }
 
-void Pendulum::update(float dt) {
+void Pendulum::setAngle(float angleInDegrees) {
 
-    angularAcceleration = -(9.81f / length) * sin(angle);
-    angularVelocity += angularAcceleration * dt;
-    angle += angularVelocity * dt;
-    angularVelocity *= 0.99f;
+    angle = angleInDegrees;
+}
 
-    // Visual update using delta angle
-    float deltaAngle = angle - previousAngle;
-    pivot(deltaAngle);
+void Pendulum::pivot() {
 
-    previousAngle = angle;  // Save for next frame
-    
-   
+    float radians = glm::radians(angle);
+    glm::vec3 pivotPoint = glm::vec3(Pos[0], Pos[1] + length / 2, 0.0f);
+
+    glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), -pivotPoint);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), radians, glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 translateBack = glm::translate(glm::mat4(1.0f), pivotPoint);
+
+    modelMatrix = translateBack * rotation * translateToOrigin;
+}
+
+void Pendulum::swing(float angleRangeInDegrees) {
+
+
+
+}
+
+void Pendulum::update() {
+     
+    //pivot the Pendulum to the current angle of the pendulum
+    this->pivot();
 
 }
