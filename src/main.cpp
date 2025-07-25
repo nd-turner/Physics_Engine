@@ -15,7 +15,7 @@
 
 #include "Shader.h"
 #include "Callbacks.h"
-#include "Level.h"
+#include "Constants.h"
 #include "Timer.h"
 #include "Vertex.h"
 #include "Renderer.h"
@@ -37,7 +37,6 @@ extern "C"
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = USE_GPU_ENGINE;
 }
 
-//here is where we get all of the user input
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -45,100 +44,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 }
 
-
-
-//implement simple collision detection based of the circlular nature of the object (will implement SAT for better performance down the road)
-bool checkCollisionDetection( Object* circle1, Object* circle2) {
-
-	//lets get the position of each circle
-	const float* pos1 = circle1->getPosition();
-	const float* pos2 = circle2->getPosition();
-
-	float mass1 = circle1->getMass();
-	float mass2 = circle2->getMass();
-
-
-	//lets get the radius of each circle
-	float rad1 = circle1->getRad();
-	float rad2 = circle2->getRad();
-
-	//lets check if the sum of the radius's ^2 is smaller than the distance between the circles
-	float radiSumSquared = (rad1 + rad2) * (rad1 + rad2);
-
-	float dx = pos2[0] - pos1[0];
-	float dy = pos2[1] - pos1[1];
-
-	dx *= dx;
-	dy *= dy;
-
-	float distanceSquared = dx + dy;
-
-
-	return distanceSquared <= radiSumSquared;
-}
-
-void HandleCollision(Object* circle1, Object* circle2) {
-
-	//lets get the position of each circle
-	const float* pos1 = circle1->getPosition();
-	const float* pos2 = circle2->getPosition();
-
-	//lets get the radius of each circle
-	float rad1 = circle1->getRad();
-	float rad2 = circle2->getRad();
-
-	//lets check if the sum of the radius's ^2 is smaller than the distance between the circles
-	float radiSumSquared = (rad1 + rad2) * (rad1 + rad2);
-
-	float dx = pos2[0] - pos1[0];
-	float dy = pos2[1] - pos1[1];
-
-
-	// Calculate the distance between the circles
-	float distance = std::sqrt(dx * dx + dy * dy);
-	float overlap = (rad1 + rad2) - distance;
-
-
-
-	// If there is an overlap, resolve it
-	if (overlap > 0) {
-		// Normalize the collision vector
-		float nx = dx / distance;
-		float ny = dy / distance;
-
-		// Move circles apart based on overlap
-		float halfOverlap = overlap / 2.0f;
-		float newPos1[3] = { pos1[0] - nx * halfOverlap, pos1[1] - ny * halfOverlap, 0.0f };
-		float newPos2[3] = { pos2[0] + nx * halfOverlap, pos2[1] + ny * halfOverlap, 0.0f };
-
-		circle1->updatePosition(newPos1);
-		circle2->updatePosition(newPos2);
-
-		// Calculate new velocities after collision
-		const float* vel1 = circle1->getVelocity();
-		const float* vel2 = circle2->getVelocity();
-
-		// Simple elastic collision response (reflecting velocities)
-		float newVel1[3] = { -vel1[0], -vel1[1], 0.0f }; // Reflect velocity for circle1
-		float newVel2[3] = { -vel2[0], -vel2[1], 0.0f }; // Reflect velocity for circle2
-
-		circle1->updateVelocity(newVel1);
-		circle2->updateVelocity(newVel2);
-	}
-
-
-}
 void swing(Pendulum& Pendulum1) {
-	static float time = 0.0f;       // keeps track of time between frames
-	float amplitude = 90;        // max angle in degrees
-	float frequency = 1.0f;         // swing frequency in Hz
+	static float time = 0.0f;
+	float amplitude = 90;
+	float frequency = 1.0f;
 	float damper = .5;
 
-	time += tickMaster.getDt() * .25; // approximate frame time (60 FPS); replace with actual dt if available
+	time += tickMaster.getDt() * .25;
 
-	
 	float angle = amplitude * damper * std::sin(2 * 3.14159f * frequency * time) ;
-	Pendulum1.setAngle(angle);      // angle in degrees, assuming setAngle converts to radians
+	Pendulum1.setAngle(angle);
 }
 
 
@@ -148,7 +63,6 @@ int main(void)
 	if (!glfwInit()) { return -1; }
 
 #pragma region report opengl errors to std
-	//this code enables GLFW debugging
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #pragma endregion
 
@@ -185,55 +99,18 @@ int main(void)
 	int startTick = tickMaster.getTicks();
 	int loopCount = 0;
 
-	
-
-	float InitPos[3] = { 0.0f, 1.3f, 0.0f };
-	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
-
-	float length = 1.0f;
-	float Circ1Rad = 0.1f;
-	
-
-	float TopInitPos[3] = { 0.0f, 0.8f, 0.0f };
-	float TopInitVel[3] = { 0.0f, 0.0f, 0.0f };
-
-	/*texture
-
-	int Textwidth, Textheight, TextChannels;
-	unsigned char* image_data = stbi_load("wood.png", &Textwidth, &Textheight, &TextChannels, STBI_rgb);
-
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	scaling
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	repeating
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Textwidth, Textheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-
-	stbi_image_free(image_data);
-	glBindTexture(GL_TEXTURE_2D, 0);*/
-
 	Renderer Renderer;
 	Force forces;
 
 	std::vector<Object*> GameObjects;
 
-	Pendulum* Pendulum1 = new Pendulum(InitPos, InitVel, length, 0, 0.1f);
+	Pendulum* Pendulum1 = new Pendulum(Pendulum_1::InitPos, Pendulum_1::InitVel, Pendulum_1::length, Pendulum_1::PendulumAngle, Pendulum_1::massRad);
 	Pendulum1->setRenderer(&Renderer);
 	GameObjects.push_back(Pendulum1);
 	
 	Pendulum1->setAngle(angle);
 
-	Box* top = new Box(TopInitPos, TopInitVel, 0.05f, 1.0f);
+	Box* top = new Box(bar::TopInitPos, bar::TopInitVel, bar::boxHeight, bar::boxWidth);
 	top->setRenderer(&Renderer);
 	GameObjects.push_back(top);
 
@@ -242,15 +119,10 @@ int main(void)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-	/*Pendulum1->pivot(angle);
 
 	glm::mat4 model = Pendulum1->getModelMatrix();
 
-	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));*/
-
-	//GLuint modelLoc = glGetUniformLocation(vertex.vert, "model");
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
+	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -312,18 +184,14 @@ int main(void)
 						float newPos[3] = { normMx, normMy, 0.0f };
 
 						GameObjects[i]->updatePosition(newPos);
-						GameObjects[i]->updateVelocity(InitVel);
+						GameObjects[i]->updateVelocity(0);
 					}
 				}
 				else {
 					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
 				}
 
-				for (int j = i + 1; j < GameObjects.size(); j++) {
-					if (checkCollisionDetection(GameObjects[i], GameObjects[j])) {
-						HandleCollision(GameObjects[i], GameObjects[j]);
-					}
-				}
+				
 			}
 		}
 
