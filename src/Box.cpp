@@ -5,7 +5,7 @@
 #include <vector>
 
 Box::Box(float InitPos[3], float InitVel[3], float height, float width)
-    : Object(InitPos, InitVel), height(height),width(width) {
+    : Object(InitPos, InitVel), height(height), width(width) {
 
     this->vertices = generateMesh();
     this->elements = generateElem(vertices);

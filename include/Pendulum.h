@@ -42,7 +42,7 @@ class Pendulum : public Object {
 		void draw(Shader& shader) override;
 
 		float getAngle();
-		void setAngle(float angleInDegrees);
+		void setAngle(float angleInDegrees) override;
 		void pivot ();
 		void swing(float angleRangeInDegrees);
 		void update();

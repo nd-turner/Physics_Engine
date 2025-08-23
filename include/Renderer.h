@@ -11,7 +11,7 @@ struct MeshData {
 	uint32_t VAO;
 	uint32_t VBO;
 	uint32_t EBO;
-	//uint32_t numIndices;
+
 };
 
 class Renderer {

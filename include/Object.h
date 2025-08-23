@@ -36,7 +36,7 @@ class Object{
         virtual std::vector<int> generateElem(std::vector<Vertex> GeoMesh);
         virtual void draw(Shader& shader);
         virtual void setRenderer(Renderer* r);
-      
+        virtual void setAngle(float);
 
         void updatePosition(float pos[3]);
         void updateVelocity(float vel[3]);

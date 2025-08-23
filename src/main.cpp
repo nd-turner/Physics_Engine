@@ -27,9 +27,7 @@
 
 #define USE_GPU_ENGINE 0
 
-
 static Timer tickMaster;
-
 
 extern "C"
 {
@@ -73,7 +71,6 @@ int main(void)
 	glfwSetKeyCallback(window, key_callback);
 	glfwMakeContextCurrent(window);
 
-
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glClearColor(.0, .3, .6, 0);
 	glfwSwapInterval(1);
@@ -102,25 +99,27 @@ int main(void)
 	Renderer Renderer;
 	Force forces;
 
-	std::vector<Object*> GameObjects;
+	std::vector<std::unique_ptr<Object>> GameObjects;
 
-	Pendulum* Pendulum1 = new Pendulum(Pendulum_1::InitPos, Pendulum_1::InitVel, Pendulum_1::length, Pendulum_1::PendulumAngle, Pendulum_1::massRad);
-	Pendulum1->setRenderer(&Renderer);
-	GameObjects.push_back(Pendulum1);
+
 	
-	Pendulum1->setAngle(angle);
+	auto Pendulum1 = std::make_unique<Pendulum>(Pendulum_1::InitPos, Pendulum_1::InitVel, Pendulum_1::length, Pendulum_1::PendulumAngle, Pendulum_1::massRad);
+	Pendulum* rawPtr = Pendulum1.get();
+	Pendulum1->setRenderer(&Renderer);
+	GameObjects.push_back(std::move(Pendulum1));
+	GameObjects[0]->setAngle(angle);
 
-	Box* top = new Box(bar::TopInitPos, bar::TopInitVel, bar::boxHeight, bar::boxWidth);
+	auto top = std::make_unique<Box>(bar::TopInitPos, bar::TopInitVel, bar::boxHeight, bar::boxWidth);
 	top->setRenderer(&Renderer);
-	GameObjects.push_back(top);
+	GameObjects.push_back(std::move(top));
 
-	glfwSetWindowUserPointer(window, Pendulum1);
+	glfwSetWindowUserPointer(window, GameObjects[0].get());
 
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 
-	glm::mat4 model = Pendulum1->getModelMatrix();
+	glm::mat4 model = rawPtr->getModelMatrix();
 
 	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -155,8 +154,13 @@ int main(void)
 				}
 
 				GameObjects[i]->updatePosition(newPosition);
-				swing(*Pendulum1);
-				Pendulum1->update();
+
+				if (auto* pendulum = dynamic_cast<Pendulum*>(GameObjects[i].get())) {
+					swing(*pendulum);
+					pendulum->update();
+				}
+
+			\
 				
 				
 
@@ -165,7 +169,7 @@ int main(void)
 
 				}
 
-				bool drag = isDraggable(window, GameObjects[i]);
+				bool drag = isDraggable(window, GameObjects[i].get());
 
 				if (drag) {
 

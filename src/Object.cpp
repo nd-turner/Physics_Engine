@@ -100,3 +100,6 @@ void Object::draw(Shader& shader) {
 
 }
 
+void Object::setAngle(float) {
+
+}
