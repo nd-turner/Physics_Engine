@@ -41,19 +41,58 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 }
+//need to implement this
+void handleDraggablity(GLFWwindow* window, bool drag) {
 
-void swing(Pendulum& Pendulum1) {
+	if (drag) {
+		std::cout << "draggable \n";
+		glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
+		int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
+		if (leftMousePressed == GLFW_PRESS) {
+
+			double mouseX, mouseY;
+			glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		}
+	}
+	else {
+		glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
+	}
+
+}
+
+void swing(Pendulum& Pendulum1, float dt) {
 	static float time = 0.0f;
 	float amplitude = 90;
 	float frequency = 1.0f;
 	float damper = .5;
 
-	time += tickMaster.getDt() * .25;
+	time += dt * .25;
 
 	float angle = amplitude * damper * std::sin(2 * 3.14159f * frequency * time) ;
 	Pendulum1.setAngle(angle);
 }
 
+void updatePhysics(Object& obj, float dt) {
+	const float* pos = obj.getPosition();
+	const float* vel = obj.getVelocity();
+
+	float newPos[3];
+
+	for (int j = 0; j < 3; j++) {
+		newPos[j] = pos[j] + vel[j] * dt;
+	}
+
+	if (auto* pendulum = dynamic_cast<Pendulum*>(&obj)) {
+		swing(*pendulum, dt);
+		pendulum->update();
+	}
+
+	if (obj.isColliding()) {
+		obj.handleWallCollision();
+	}
+}
 
 int main(void)
 {
@@ -101,15 +140,24 @@ int main(void)
 
 	std::vector<std::unique_ptr<Object>> GameObjects;
 
+	auto Pendulum1 = std::make_unique<Pendulum>(
+		Pendulum_1::InitPos,
+		Pendulum_1::InitVel, 
+		Pendulum_1::length, 
+		Pendulum_1::PendulumAngle,
+		Pendulum_1::massRad);
 
-	
-	auto Pendulum1 = std::make_unique<Pendulum>(Pendulum_1::InitPos, Pendulum_1::InitVel, Pendulum_1::length, Pendulum_1::PendulumAngle, Pendulum_1::massRad);
 	Pendulum* rawPtr = Pendulum1.get();
 	Pendulum1->setRenderer(&Renderer);
 	GameObjects.push_back(std::move(Pendulum1));
 	GameObjects[0]->setAngle(angle);
 
-	auto top = std::make_unique<Box>(bar::TopInitPos, bar::TopInitVel, bar::boxHeight, bar::boxWidth);
+	auto top = std::make_unique<Box>(
+		bar::TopInitPos, 
+		bar::TopInitVel, 
+		bar::boxHeight, 
+		bar::boxWidth);
+
 	top->setRenderer(&Renderer);
 	GameObjects.push_back(std::move(top));
 
@@ -118,11 +166,12 @@ int main(void)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-
-	glm::mat4 model = rawPtr->getModelMatrix();
-
-	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-
+	auto* pendulum = dynamic_cast<Pendulum*>(GameObjects[0].get());
+	if (pendulum) {
+		glm::mat4 model = pendulum->getModelMatrix();
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -144,57 +193,11 @@ int main(void)
 			for (int i = 0; i < GameObjects.size(); i++) {
 				bool isAnyDraggable = false;
 
-				const float* pos = GameObjects[i]->getPosition();
-				const float* vel = GameObjects[i]->getVelocity();
-
-				float newPosition[3];
-
-				for (int j = 0; j < 3; j++) {
-					newPosition[j] = pos[j] + vel[j] * dt;
-				}
-
-				GameObjects[i]->updatePosition(newPosition);
-
-				if (auto* pendulum = dynamic_cast<Pendulum*>(GameObjects[i].get())) {
-					swing(*pendulum);
-					pendulum->update();
-				}
-
-			\
-				
-				
-
-				if (GameObjects[i]->isColliding()) {
-					GameObjects[i]->handleWallCollision();
-
-				}
+				updatePhysics(*GameObjects[i], dt);
 
 				bool drag = isDraggable(window, GameObjects[i].get());
 
-				if (drag) {
-
-					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
-					
-
-					int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-
-					if (leftMousePressed == GLFW_PRESS) {
-
-						double mouseX, mouseY;
-						glfwGetCursorPos(window, &mouseX, &mouseY);
-
-						float normMx = (2.0f * (float)mouseX) / (float)width - 1.0f;
-						float normMy = (2.0f * ((float)height - (float)mouseY)) / (float)height - 1.0f;
-						float newPos[3] = { normMx, normMy, 0.0f };
-
-						GameObjects[i]->updatePosition(newPos);
-						GameObjects[i]->updateVelocity(0);
-					}
-				}
-				else {
-					glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
-				}
-
+				handleDraggablity(window, drag);
 				
 			}
 		}
