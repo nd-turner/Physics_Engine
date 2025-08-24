@@ -41,25 +41,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 }
-//need to implement this
-void handleDraggablity(GLFWwindow* window, bool drag) {
 
+void handleDraggablity(GLFWwindow* window, bool &drag) {
+
+	std::cout << "Is Draggable? : " << drag << "\r";
 	if (drag) {
-		std::cout << "draggable \n";
 		glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
 		int leftMousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
 		if (leftMousePressed == GLFW_PRESS) {
-
 			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
-
 		}
 	}
 	else {
 		glfwSetCursor(window, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
 	}
-
 }
 
 void swing(Pendulum& Pendulum1, float dt) {
@@ -147,10 +144,20 @@ int main(void)
 		Pendulum_1::PendulumAngle,
 		Pendulum_1::massRad);
 
-	Pendulum* rawPtr = Pendulum1.get();
 	Pendulum1->setRenderer(&Renderer);
 	GameObjects.push_back(std::move(Pendulum1));
 	GameObjects[0]->setAngle(angle);
+
+	auto Pendulum2 = std::make_unique<Pendulum>(
+		Pendulum_2::InitPos,
+		Pendulum_2::InitVel,
+		Pendulum_2::length,
+		Pendulum_2::PendulumAngle,
+		Pendulum_2::massRad);
+	
+	Pendulum2->setRenderer(&Renderer);
+	GameObjects.push_back(std::move(Pendulum2));
+	GameObjects[1]->setAngle(angle);
 
 	auto top = std::make_unique<Box>(
 		bar::TopInitPos, 
@@ -166,14 +173,13 @@ int main(void)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-	auto* pendulum = dynamic_cast<Pendulum*>(GameObjects[0].get());
-	if (pendulum) {
-		glm::mat4 model = pendulum->getModelMatrix();
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	for (auto& obj : GameObjects) {
+		if (auto* pend = dynamic_cast<Pendulum*>(obj.get())) {
+			glm::mat4 model = pend->getModelMatrix();
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+		}
 	}
-	
-	while (!glfwWindowShouldClose(window))
-	{
+	while (!glfwWindowShouldClose(window)){
 
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
@@ -191,14 +197,12 @@ int main(void)
 			loopCount++;
 
 			for (int i = 0; i < GameObjects.size(); i++) {
+
 				bool isAnyDraggable = false;
-
 				updatePhysics(*GameObjects[i], dt);
-
 				bool drag = isDraggable(window, GameObjects[i].get());
-
 				handleDraggablity(window, drag);
-				
+
 			}
 		}
 

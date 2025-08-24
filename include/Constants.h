@@ -11,7 +11,7 @@ namespace Pendulum_1 {
 }
 
 namespace Pendulum_2 {
-	float InitPos[3] = { 0.0f, 1.3f, 0.0f };
+	float InitPos[3] = { 0.0f, 1.7f, 0.0f };
 	float InitVel[3] = { 0.0f, 0.0f, 0.0f };
 	float length = 1.0f;
 	float massRad = 0.1f;
